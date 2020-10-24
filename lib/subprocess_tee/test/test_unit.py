@@ -1,5 +1,6 @@
 """Unittests."""
 import subprocess
+
 from subprocess_tee import run
 
 
@@ -11,9 +12,10 @@ def test_1():
         shell=True,
         universal_newlines=True,
         stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE)
+        stderr=subprocess.PIPE,
+        check=False,
+    )
     result = run(cmd)
     assert result.returncode == old_result.returncode
     assert result.stdout == old_result.stdout
     assert result.stderr == old_result.stderr
-

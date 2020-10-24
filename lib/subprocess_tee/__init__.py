@@ -4,10 +4,10 @@ import os
 import platform
 import sys
 from subprocess import CompletedProcess
-from typing import Any, Dict, List
+from typing import Any, Callable, Dict, List, Optional
 
 
-async def _read_stream(stream, callback):
+async def _read_stream(stream, callback: Callable):
     while True:
         line = await stream.readline()
         if line:
@@ -37,9 +37,9 @@ async def _stream_subprocess(
     out: List[str] = []
     err: List[str] = []
 
-    def tee(line, sink, pipe):
-        line = line.decode("utf-8").rstrip()
-        sink.append(line)
+    def tee(line: bytes, sink: List[str], pipe: Optional[Any]):
+        line_str = line.decode("utf-8").rstrip()
+        sink.append(line_str)
         if not quiet:
             print(line, file=pipe)
 
@@ -56,7 +56,7 @@ async def _stream_subprocess(
         args=cmd,
         returncode=await process.wait(),
         stdout=os.linesep.join(out) + os.linesep,
-        stderr=os.linesep.join(err) + os.linesep
+        stderr=os.linesep.join(err) + os.linesep,
     )
 
 
