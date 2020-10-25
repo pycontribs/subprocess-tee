@@ -6,6 +6,11 @@ import sys
 from subprocess import CompletedProcess
 from typing import Any, Callable, Dict, List, Optional
 
+try:
+    from shlex import join  # type: ignore
+except ImportError:
+    from subprocess import list2cmdline as join  # pylint: disable=ungrouped-imports
+
 
 async def _read_stream(stream, callback: Callable):
     while True:
@@ -51,21 +56,31 @@ async def _stream_subprocess(args, **kwargs) -> CompletedProcess:
 
     await asyncio.wait({task1, task2})
 
+    # We need to be sure we keep the stdout/stderr output identical with
+    # the ones procued by subprocess.run(), at least when in text mode.
     return CompletedProcess(
         args=args,
         returncode=await process.wait(),
         stdout=os.linesep.join(out) + os.linesep,
-        stderr=os.linesep.join(err) + os.linesep,
+        stderr=(os.linesep.join(err) + os.linesep) if err else "",
     )
 
 
-def run(*args, **kwargs):
+def run(cmd, **kwargs):
     """Drop-in replacement for subprocerss.run that behaves like tee.
 
     Extra arguments added by our version:
     echo: False - Prints command before executing it.
     quiet: False - Avoid printing output
     """
+    if not isinstance(cmd, str):
+        # run was called with a list instead of a single item but asyncio
+        # create_subprocess_shell requires command as a single string, so
+        # we need to convert it to string
+        cmd = join(cmd)
+
+    if not isinstance(cmd, str):
+        raise RuntimeError(f"Unable to process {cmd}")
     loop = asyncio.get_event_loop()
-    result = loop.run_until_complete(_stream_subprocess(*args, **kwargs))
+    result = loop.run_until_complete(_stream_subprocess(cmd, **kwargs))
     return result
