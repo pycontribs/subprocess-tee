@@ -41,14 +41,15 @@ async def _stream_subprocess(args, **kwargs) -> CompletedProcess:
         if not kwargs.get("quiet", False):
             print(line_str, file=pipe)
 
-    await asyncio.wait(
-        set(
-            [
-                _read_stream(process.stdout, lambda l: tee(l, out, sys.stdout)),
-                _read_stream(process.stderr, lambda l: tee(l, err, sys.stderr)),
-            ]
-        )
+    loop = asyncio.get_event_loop()
+    task1 = loop.create_task(
+        _read_stream(process.stdout, lambda l: tee(l, out, sys.stdout))
     )
+    task2 = loop.create_task(
+        _read_stream(process.stderr, lambda l: tee(l, err, sys.stderr))
+    )
+
+    await asyncio.wait({task1, task2})
 
     return CompletedProcess(
         args=args,
