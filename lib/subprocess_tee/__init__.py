@@ -16,23 +16,21 @@ async def _read_stream(stream, callback: Callable):
             break
 
 
-async def _stream_subprocess(
-    cmd, stdin=None, quiet=False, echo=False
-) -> CompletedProcess:
+async def _stream_subprocess(args, **kwargs) -> CompletedProcess:
     if platform.system() == "Windows":
         platform_settings: Dict[str, Any] = {"env": os.environ}
     else:
         platform_settings = {"executable": "/bin/bash"}
 
-    if echo:
-        print(cmd)
+    if kwargs.get("echo", False):
+        print(*args)
 
     process = await asyncio.create_subprocess_shell(
-        cmd,
-        stdin=stdin,
+        args,
+        stdin=kwargs.get("stdin", False),
         stdout=asyncio.subprocess.PIPE,
         stderr=asyncio.subprocess.PIPE,
-        **platform_settings
+        **platform_settings,
     )
     out: List[str] = []
     err: List[str] = []
@@ -40,8 +38,8 @@ async def _stream_subprocess(
     def tee(line: bytes, sink: List[str], pipe: Optional[Any]):
         line_str = line.decode("utf-8").rstrip()
         sink.append(line_str)
-        if not quiet:
-            print(line, file=pipe)
+        if not kwargs.get("quiet", False):
+            print(line_str, file=pipe)
 
     await asyncio.wait(
         set(
@@ -53,18 +51,20 @@ async def _stream_subprocess(
     )
 
     return CompletedProcess(
-        args=cmd,
+        args=args,
         returncode=await process.wait(),
         stdout=os.linesep.join(out) + os.linesep,
         stderr=os.linesep.join(err) + os.linesep,
     )
 
 
-def run(cmd, stdin=None, quiet=False, echo=False) -> CompletedProcess:
-    """Drop-in replacement for subprocerss.run that does tee."""
-    loop = asyncio.get_event_loop()
-    result = loop.run_until_complete(
-        _stream_subprocess(cmd, stdin=stdin, quiet=quiet, echo=echo)
-    )
+def run(*args, **kwargs):
+    """Drop-in replacement for subprocerss.run that behaves like tee.
 
+    Extra arguments added by our version:
+    echo: False - Prints command before executing it.
+    quiet: False - Avoid printing output
+    """
+    loop = asyncio.get_event_loop()
+    result = loop.run_until_complete(_stream_subprocess(*args, **kwargs))
     return result
