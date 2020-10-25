@@ -37,7 +37,8 @@ jobs:
       with:
         python-version: ${{ matrix.python-version }}
     - name: set PY_SHA256
-      run: echo "::set-env name=PY_SHA256::$(python -VV | sha256sum | cut -d' ' -f1)"
+      run: |
+        echo "PY_SHA256=$(python -VV | sha256sum | cut -d' ' -f1)" >> $GITHUB_ENV
     - name: Pre-commit cache
       uses: actions/cache@v1
       with:
