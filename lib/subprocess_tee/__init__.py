@@ -26,6 +26,8 @@ async def _stream_subprocess(args, **kwargs) -> CompletedProcess:
         platform_settings: Dict[str, Any] = {"env": os.environ}
     else:
         platform_settings = {"executable": "/bin/bash"}
+    if "env" in kwargs:
+        platform_settings["env"] = kwargs["env"]
 
     process = await asyncio.create_subprocess_shell(
         args,

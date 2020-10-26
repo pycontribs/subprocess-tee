@@ -59,3 +59,10 @@ def test_run_echo(capsys):
     out, err = capsys.readouterr()
     assert out.startswith("COMMAND:")
     assert err == ""
+
+
+def test_run_with_env():
+    """Validate that passing custom env to run() works."""
+    env = {"FOO": "BAR"}
+    result = run("echo $FOO", env=env, echo=True)
+    assert result.stdout == "BAR\n"
