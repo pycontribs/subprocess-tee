@@ -27,9 +27,6 @@ async def _stream_subprocess(args, **kwargs) -> CompletedProcess:
     else:
         platform_settings = {"executable": "/bin/bash"}
 
-    if kwargs.get("echo", False):
-        print(*args)
-
     process = await asyncio.create_subprocess_shell(
         args,
         stdin=kwargs.get("stdin", False),
@@ -81,6 +78,10 @@ def run(cmd, **kwargs):
 
     if not isinstance(cmd, str):
         raise RuntimeError(f"Unable to process {cmd}")
+
+    if kwargs.get("echo", False):
+        print(f"COMMAND: {cmd}")
+
     loop = asyncio.get_event_loop()
     result = loop.run_until_complete(_stream_subprocess(cmd, **kwargs))
     return result
