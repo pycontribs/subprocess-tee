@@ -39,3 +39,23 @@ def test_run_list():
     assert result.returncode == old_result.returncode
     assert result.stdout == old_result.stdout
     assert result.stderr == old_result.stderr
+
+
+def test_run_echo(capsys):
+    """Validate run call with echo dumps command."""
+    cmd = ["python", "--version"]
+    old_result = subprocess.run(
+        cmd,
+        # shell=True,
+        universal_newlines=True,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        check=False,
+    )
+    result = run(cmd, echo=True)
+    assert result.returncode == old_result.returncode
+    assert result.stdout == old_result.stdout
+    assert result.stderr == old_result.stderr
+    out, err = capsys.readouterr()
+    assert out.startswith("COMMAND:")
+    assert err == ""

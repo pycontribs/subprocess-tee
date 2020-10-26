@@ -163,7 +163,7 @@ jobs:
           pip install tox
     - name: Run tox -e ${{ matrix.tox_env }}
       run: |
-          PYTEST_REQPASS=3 tox -e ${{ matrix.tox_env }}
+          tox -e ${{ matrix.tox_env }}
   publish:
     name: Publish to PyPI registry
     needs:
