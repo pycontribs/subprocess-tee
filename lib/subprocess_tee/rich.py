@@ -48,12 +48,12 @@ class FileProxy(io.TextIOBase):
 class ConsoleEx(Console):
     """Extends rich Console class."""
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args: str, **kwargs: Any) -> None:
         self.redirect = kwargs.get("redirect", False)
         if "redirect" in kwargs:
             del kwargs["redirect"]
         super().__init__(*args, **kwargs)
         self.extended = True
         if self.redirect:
-            sys.stdout = FileProxy(self, sys.stdout)
-            sys.stderr = FileProxy(self, sys.stderr)
+            sys.stdout = FileProxy(self, sys.stdout)  # type: ignore
+            sys.stderr = FileProxy(self, sys.stderr)  # type: ignore
