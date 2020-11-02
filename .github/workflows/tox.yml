@@ -79,6 +79,15 @@ jobs:
         name: logs.zip
         path: .tox/**/log/
 
+  alpine:
+    name: alpine
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v1
+      - name: Run docker build
+        run: docker build .
+
   unit:
     name: >-
       py${{ matrix.python-version }}@${{ matrix.os }}

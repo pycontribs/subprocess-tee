@@ -22,10 +22,17 @@ async def _read_stream(stream, callback: Callable):
 
 
 async def _stream_subprocess(args, **kwargs) -> CompletedProcess:
+    platform_settings: Dict[str, Any] = {}
     if platform.system() == "Windows":
-        platform_settings: Dict[str, Any] = {"env": os.environ}
-    else:
-        platform_settings = {"executable": "/bin/bash"}
+        platform_settings["env"] = os.environ
+
+    # We need to tell subprocess which shell to use when running shell-like
+    # commands.
+    # * SHELL is not always defined
+    # * /bin/bash does not exit on alpine, /bin/sh seems bit more portable
+    if "executable" not in kwargs and isinstance(args, str) and " " in args:
+        platform_settings["executable"] = os.environ.get("SHELL", "/bin/sh")
+
     if "env" in kwargs:
         platform_settings["env"] = kwargs["env"]
 
