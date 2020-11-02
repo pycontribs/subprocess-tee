@@ -26,7 +26,7 @@ def test_run_list():
     # NOTICE: subprocess.run() does fail to capture any output when cmd is
     # a list and you specific shell=True. Still, when not mentioning shell,
     # it does work.
-    cmd = ["python", "--version"]
+    cmd = ["python3", "--version"]
     old_result = subprocess.run(
         cmd,
         # shell=True,
@@ -43,7 +43,7 @@ def test_run_list():
 
 def test_run_echo(capsys):
     """Validate run call with echo dumps command."""
-    cmd = ["python", "--version"]
+    cmd = ["python3", "--version"]
     old_result = subprocess.run(
         cmd,
         # shell=True,
@@ -66,3 +66,12 @@ def test_run_with_env():
     env = {"FOO": "BAR"}
     result = run("echo $FOO", env=env, echo=True)
     assert result.stdout == "BAR\n"
+
+
+def test_run_shell():
+    """Validate run call with multiple shell commands works."""
+    cmd = "echo a && echo b && false || exit 4"
+    # "python --version"
+    result = run(cmd, echo=True)
+    assert result.returncode == 4
+    assert result.stdout == "a\nb\n"
