@@ -5,7 +5,7 @@ from subprocess_tee import run
 from subprocess_tee.rich import ConsoleEx
 
 
-def test_rich_console_ex():
+def test_rich_console_ex() -> None:
     """Validate that ConsoleEx can capture output from print() calls."""
     console = ConsoleEx(record=True, redirect=True)
     console.print("alpha")

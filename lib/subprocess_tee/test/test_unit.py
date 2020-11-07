@@ -1,10 +1,12 @@
 """Unittests."""
 import subprocess
 
+from _pytest.capture import CaptureFixture
+
 from subprocess_tee import run
 
 
-def test_run_string():
+def test_run_string() -> None:
     """Valida run() called with a single string command."""
     cmd = "echo 111 && >&2 echo 222"
     old_result = subprocess.run(
@@ -21,7 +23,7 @@ def test_run_string():
     assert result.stderr == old_result.stderr
 
 
-def test_run_list():
+def test_run_list() -> None:
     """Validate run call with a command made of list of strings."""
     # NOTICE: subprocess.run() does fail to capture any output when cmd is
     # a list and you specific shell=True. Still, when not mentioning shell,
@@ -41,7 +43,7 @@ def test_run_list():
     assert result.stderr == old_result.stderr
 
 
-def test_run_echo(capsys):
+def test_run_echo(capsys: CaptureFixture[str]) -> None:
     """Validate run call with echo dumps command."""
     cmd = ["python3", "--version"]
     old_result = subprocess.run(
@@ -61,14 +63,14 @@ def test_run_echo(capsys):
     assert err == ""
 
 
-def test_run_with_env():
+def test_run_with_env() -> None:
     """Validate that passing custom env to run() works."""
     env = {"FOO": "BAR"}
     result = run("echo $FOO", env=env, echo=True)
     assert result.stdout == "BAR\n"
 
 
-def test_run_shell():
+def test_run_shell() -> None:
     """Validate run call with multiple shell commands works."""
     cmd = "echo a && echo b && false || exit 4"
     # "python --version"
