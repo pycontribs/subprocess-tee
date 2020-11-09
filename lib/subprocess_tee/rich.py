@@ -1,7 +1,7 @@
 """Module that helps integrating with rich library."""
 import io
 import sys
-from typing import IO, Any, List
+from typing import IO, Any, List, Union
 
 from rich.console import Console
 
@@ -20,10 +20,13 @@ class FileProxy(io.TextIOBase):
     def __getattr__(self, name: str) -> Any:
         return getattr(self.__file, name)
 
-    def write(self, text: str) -> int:
+    def write(self, text: Union[str, bytes]) -> int:
         buffer = self.__buffer
         lines: List[str] = []
+
         while text:
+            if isinstance(text, bytes):
+                text = text.decode()
             line, new_line, text = text.partition("\n")
             if new_line:
                 lines.append("".join(buffer) + line)
