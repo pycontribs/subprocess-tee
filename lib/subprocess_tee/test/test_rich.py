@@ -29,7 +29,7 @@ def test_rich_console_ex_ansi() -> None:
     console.print("[green]this from Console.print()[/green]", style="red")
     proc = run(r'echo -e "\033[31mred\033[0m"')
     assert proc.returncode == 0
-    assert proc.stdout == "\x1b[31mred\x1b[0m\n"
+    assert "\x1b[31mred\x1b[0m\n" in proc.stdout
 
     # validate that what rich recorded is the same as what the subprocess produced
     text = console.export_text(clear=False)

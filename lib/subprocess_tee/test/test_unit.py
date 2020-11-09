@@ -1,6 +1,8 @@
 """Unittests."""
 import subprocess
+from typing import Dict
 
+import pytest
 from _pytest.capture import CaptureFixture
 
 from subprocess_tee import run
@@ -63,9 +65,14 @@ def test_run_echo(capsys: CaptureFixture[str]) -> None:
     assert err == ""
 
 
-def test_run_with_env() -> None:
+@pytest.mark.parametrize(
+    "env",
+    [{}, {"SHELL": "/bin/sh"}, {"SHELL": "/bin/bash"}, {"SHELL": "/bin/zsh"}],
+    ids=["auto", "sh", "bash", "zsh"],
+)
+def test_run_with_env(env: Dict[str, str]) -> None:
     """Validate that passing custom env to run() works."""
-    env = {"FOO": "BAR"}
+    env["FOO"] = "BAR"
     result = run("echo $FOO", env=env, echo=True)
     assert result.stdout == "BAR\n"
 
@@ -75,5 +82,14 @@ def test_run_shell() -> None:
     cmd = "echo a && echo b && false || exit 4"
     # "python --version"
     result = run(cmd, echo=True)
+    assert result.returncode == 4
+    assert result.stdout == "a\nb\n"
+
+
+def test_run_shell_undefined() -> None:
+    """Validate run call with multiple shell commands works."""
+    cmd = "echo a && echo b && false || exit 4"
+    # "python --version"
+    result = run(cmd, echo=True, env={})
     assert result.returncode == 4
     assert result.stdout == "a\nb\n"
