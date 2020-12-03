@@ -93,3 +93,11 @@ def test_run_shell_undefined() -> None:
     result = run(cmd, echo=True, env={})
     assert result.returncode == 4
     assert result.stdout == "a\nb\n"
+
+
+def test_run_cwd() -> None:
+    """Validate that run accepts cwd and respects it."""
+    cmd = "pwd"
+    result = run(cmd, echo=True, cwd="/")
+    assert result.returncode == 0
+    assert result.stdout == "/\n"

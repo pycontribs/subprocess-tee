@@ -39,8 +39,10 @@ async def _stream_subprocess(args: str, **kwargs: Any) -> CompletedProcess:
     if "executable" not in kwargs and isinstance(args, str) and " " in args:
         platform_settings["executable"] = os.environ.get("SHELL", "/bin/sh")
 
-    if "env" in kwargs:
-        platform_settings["env"] = kwargs["env"]
+    # pass kwargs we know to be supported
+    for arg in ["cwd", "env"]:
+        if arg in kwargs:
+            platform_settings[arg] = kwargs[arg]
 
     process = await asyncio.create_subprocess_shell(
         args,
