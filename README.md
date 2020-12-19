@@ -14,21 +14,3 @@ from subprocess_tee import run
 result = run("echo 123")
 result.stdout == "123\n"
 ```
-
-## Rich extension
-
-This libary also provides an drop-in replacement for rich Console class, one
-that is able to rewire both `sys.stdout` and `sys.stderr` and avoid the
-need too replace bare `print()` calls with `console.print()` ones.
-
-```python
-# from rich.console import Console
-from subprocess_tee.rich import ConsoleEx
-
-console = ConsoleEx(redirect=True, record=True)
-print("123")
-assert "123\n" == console.export_text()
-```
-
-When used in conjuction with our own `run()`, this also makes it possible
-to use rich to process output produced by subprocesses.

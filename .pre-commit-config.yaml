@@ -14,7 +14,7 @@ repos:
       - id: black
         language_version: python3
   - repo: https://github.com/pre-commit/pre-commit-hooks.git
-    rev: v3.3.0
+    rev: v3.4.0
     hooks:
       - id: end-of-file-fixer
       - id: trailing-whitespace
@@ -52,13 +52,13 @@ repos:
         additional_dependencies:
           - pytest>=6.1.2
           - packaging
-          - rich
+          - enrich>=1.2.5
   - repo: https://github.com/pre-commit/mirrors-pylint
     rev: v2.6.0
     hooks:
       - id: pylint
         additional_dependencies:
           - pytest>=6.1.2
-          - rich
+          - enrich>=1.2.5
           - typing
           - typing-extensions
