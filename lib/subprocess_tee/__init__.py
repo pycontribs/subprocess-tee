@@ -44,8 +44,11 @@ async def _stream_subprocess(args: str, **kwargs: Any) -> CompletedProcess:
         if arg in kwargs:
             platform_settings[arg] = kwargs[arg]
 
+    # Some users are reporting that default (undocumented) limit 64k is too
+    # low
     process = await asyncio.create_subprocess_shell(
         args,
+        limit=1024 * 512,
         stdin=kwargs.get("stdin", False),
         stdout=asyncio.subprocess.PIPE,
         stderr=asyncio.subprocess.PIPE,
