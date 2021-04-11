@@ -32,6 +32,14 @@ async def _stream_subprocess(args: str, **kwargs: Any) -> CompletedProcess:
     if platform.system() == "Windows":
         platform_settings["env"] = os.environ
 
+    # this part keeps behavior backwards compatible with subprocess.run
+    stdout = kwargs.get("stdout", sys.stdout)
+    if stdout == subprocess.DEVNULL:
+        stdout = open(os.devnull, "w")
+    stderr = kwargs.get("stderr", sys.stderr)
+    if stderr == subprocess.DEVNULL:
+        stderr = open(os.devnull, "w")
+
     # We need to tell subprocess which shell to use when running shell-like
     # commands.
     # * SHELL is not always defined
@@ -68,13 +76,13 @@ async def _stream_subprocess(args: str, **kwargs: Any) -> CompletedProcess:
     if process.stdout:
         tasks.append(
             loop.create_task(
-                _read_stream(process.stdout, lambda l: tee(l, out, sys.stdout))
+                _read_stream(process.stdout, lambda l: tee(l, out, stdout))
             )
         )
     if process.stderr:
         tasks.append(
             loop.create_task(
-                _read_stream(process.stderr, lambda l: tee(l, err, sys.stderr))
+                _read_stream(process.stderr, lambda l: tee(l, err, stderr))
             )
         )
 
