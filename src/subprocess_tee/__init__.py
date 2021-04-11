@@ -85,7 +85,7 @@ async def _stream_subprocess(args: str, **kwargs: Any) -> CompletedProcess:
     return CompletedProcess(
         args=args,
         returncode=await process.wait(),
-        stdout=os.linesep.join(out) + os.linesep,
+        stdout=(os.linesep.join(out) + os.linesep) if out else None,
         stderr=(os.linesep.join(err) + os.linesep) if err else "",
     )
 
@@ -105,9 +105,16 @@ def run(args: Union[str, List[str]], **kwargs: Any) -> CompletedProcess:
         # we need to convert it to string
         cmd = join(args)
 
+    check = kwargs.get("check", False)
+
     if kwargs.get("echo", False):
         print(f"COMMAND: {cmd}")
 
     loop = asyncio.get_event_loop()
     result = loop.run_until_complete(_stream_subprocess(cmd, **kwargs))
+
+    if check:
+        raise subprocess.CalledProcessError(
+            result.returncode, cmd, output=result.stdout, stderr=result.stderr
+        )
     return result
