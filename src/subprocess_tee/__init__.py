@@ -33,11 +33,12 @@ async def _stream_subprocess(args: str, **kwargs: Any) -> CompletedProcess:
         platform_settings["env"] = os.environ
 
     # this part keeps behavior backwards compatible with subprocess.run
+    tee = kwargs.get("tee", True)
     stdout = kwargs.get("stdout", sys.stdout)
-    if stdout == subprocess.DEVNULL:
+    if stdout == subprocess.DEVNULL or not tee:
         stdout = open(os.devnull, "w")
     stderr = kwargs.get("stderr", sys.stderr)
-    if stderr == subprocess.DEVNULL:
+    if stderr == subprocess.DEVNULL or not tee:
         stderr = open(os.devnull, "w")
 
     # We need to tell subprocess which shell to use when running shell-like
@@ -65,7 +66,7 @@ async def _stream_subprocess(args: str, **kwargs: Any) -> CompletedProcess:
     out: List[str] = []
     err: List[str] = []
 
-    def tee(line: bytes, sink: List[str], pipe: Optional[Any]) -> None:
+    def tee_func(line: bytes, sink: List[str], pipe: Optional[Any]) -> None:
         line_str = line.decode("utf-8").rstrip()
         sink.append(line_str)
         if not kwargs.get("quiet", False):
@@ -76,13 +77,13 @@ async def _stream_subprocess(args: str, **kwargs: Any) -> CompletedProcess:
     if process.stdout:
         tasks.append(
             loop.create_task(
-                _read_stream(process.stdout, lambda l: tee(l, out, stdout))
+                _read_stream(process.stdout, lambda l: tee_func(l, out, stdout))
             )
         )
     if process.stderr:
         tasks.append(
             loop.create_task(
-                _read_stream(process.stderr, lambda l: tee(l, err, stderr))
+                _read_stream(process.stderr, lambda l: tee_func(l, err, stderr))
             )
         )
 
