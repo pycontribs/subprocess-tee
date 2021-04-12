@@ -103,8 +103,8 @@ def test_run_cwd() -> None:
     assert result.stdout == "/\n"
 
 
-def test_run_with_check() -> None:
-    """Asure compatibility with subprocess.run when using check."""
+def test_run_with_check_raise() -> None:
+    """Asure compatibility with subprocess.run when using check (return 1)."""
     with pytest.raises(subprocess.CalledProcessError) as ours:
         run("false", check=True)
     with pytest.raises(subprocess.CalledProcessError) as original:
@@ -113,3 +113,12 @@ def test_run_with_check() -> None:
     assert ours.value.cmd == original.value.cmd
     assert ours.value.output == original.value.output
     assert ours.value.stdout == original.value.stdout
+
+
+def test_run_with_check_pass() -> None:
+    """Asure compatibility with subprocess.run when using check (return 0)."""
+    ours = run("true", check=True)
+    original = subprocess.run("true", check=True, universal_newlines=True)
+    assert ours.returncode == original.returncode
+    assert ours.args == original.args
+    assert ours.stdout == original.stdout
