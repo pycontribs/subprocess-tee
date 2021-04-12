@@ -90,11 +90,19 @@ async def _stream_subprocess(args: str, **kwargs: Any) -> CompletedProcess:
 
     # We need to be sure we keep the stdout/stderr output identical with
     # the ones procued by subprocess.run(), at least when in text mode.
+    check = kwargs.get("check", False)
+    stdout = None if check else ""
+    stderr = None if check else ""
+    if out:
+        stdout = os.linesep.join(out) + os.linesep
+    if err:
+        stderr = os.linesep.join(err) + os.linesep
+
     return CompletedProcess(
         args=args,
         returncode=await process.wait(),
-        stdout=(os.linesep.join(out) + os.linesep) if out else None,
-        stderr=(os.linesep.join(err) + os.linesep) if err else "",
+        stdout=stdout,
+        stderr=stderr,
     )
 
 
