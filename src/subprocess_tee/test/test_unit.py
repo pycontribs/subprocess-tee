@@ -113,6 +113,7 @@ def test_run_with_check_raise() -> None:
     assert ours.value.cmd == original.value.cmd
     assert ours.value.output == original.value.output
     assert ours.value.stdout == original.value.stdout
+    assert ours.value.stderr == original.value.stderr
 
 
 def test_run_with_check_pass() -> None:
@@ -122,3 +123,4 @@ def test_run_with_check_pass() -> None:
     assert ours.returncode == original.returncode
     assert ours.args == original.args
     assert ours.stdout == original.stdout
+    assert ours.stderr == original.stderr
