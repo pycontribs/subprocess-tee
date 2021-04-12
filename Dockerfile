@@ -15,5 +15,5 @@ COPY . /root/code/
 WORKDIR /root/code/
 RUN \
 python3 --version && \
-python3 -m pip install ".[test]" && \
+python3 -m pip install . -r test-requirements.txt && \
 python3 -m pytest
