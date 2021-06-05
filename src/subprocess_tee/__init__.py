@@ -18,6 +18,9 @@ except ImportError:
     from subprocess import list2cmdline as join  # pylint: disable=ungrouped-imports
 
 
+STREAM_LIMIT = 2 ** 23  # 8MB instead of default 64kb, override it if you need
+
+
 async def _read_stream(stream: StreamReader, callback: Callable[..., Any]) -> None:
     while True:
         line = await stream.readline()
@@ -57,7 +60,7 @@ async def _stream_subprocess(args: str, **kwargs: Any) -> CompletedProcess:
     # low
     process = await asyncio.create_subprocess_shell(
         args,
-        limit=1024 * 512,
+        limit=STREAM_LIMIT,
         stdin=kwargs.get("stdin", False),
         stdout=asyncio.subprocess.PIPE,
         stderr=asyncio.subprocess.PIPE,
