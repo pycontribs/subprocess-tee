@@ -39,10 +39,12 @@ async def _stream_subprocess(args: str, **kwargs: Any) -> CompletedProcess:
     tee = kwargs.get("tee", True)
     stdout = kwargs.get("stdout", sys.stdout)
     if stdout == subprocess.DEVNULL or not tee:
-        stdout = open(os.devnull, "w")
+        # pylint: disable=consider-using-with
+        stdout = open(os.devnull, "w", encoding="UTF-8")
     stderr = kwargs.get("stderr", sys.stderr)
     if stderr == subprocess.DEVNULL or not tee:
-        stderr = open(os.devnull, "w")
+        # pylint: disable=consider-using-with
+        stderr = open(os.devnull, "w", encoding="UTF-8")
 
     # We need to tell subprocess which shell to use when running shell-like
     # commands.
