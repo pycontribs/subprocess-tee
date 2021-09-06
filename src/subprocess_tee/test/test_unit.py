@@ -124,3 +124,20 @@ def test_run_with_check_pass() -> None:
     assert ours.args == original.args
     assert ours.stdout == original.stdout
     assert ours.stderr == original.stderr
+
+
+def test_run_compat() -> None:
+    """Assure compatiblity with subprocess.run()"""
+    cmd = ["seq", "10"]
+    ours = run(cmd)
+    original = subprocess.run(
+        cmd,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        universal_newlines=True,
+        check=False,
+    )
+    assert ours.returncode == original.returncode
+    assert ours.stdout == original.stdout
+    assert ours.stderr == original.stderr
+    assert ours.args == original.args
