@@ -134,9 +134,11 @@ def run(args: Union[str, List[str]], **kwargs: Any) -> CompletedProcess:
 
     loop = asyncio.get_event_loop()
     result = loop.run_until_complete(_stream_subprocess(cmd, **kwargs))
+    # we restore original args to mimic subproces.run()
+    result.args = args
 
     if check and result.returncode != 0:
         raise subprocess.CalledProcessError(
-            result.returncode, cmd, output=result.stdout, stderr=result.stderr
+            result.returncode, args, output=result.stdout, stderr=result.stderr
         )
     return result
