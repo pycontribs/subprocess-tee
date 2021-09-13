@@ -1,0 +1,8 @@
+---
+- name: Converge
+  hosts: localhost
+  gather_facts: false
+  tasks:
+    - name: "Test"
+      debug:
+        msg: "Past glories are poor feeding."

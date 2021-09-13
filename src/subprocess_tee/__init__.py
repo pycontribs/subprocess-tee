@@ -74,8 +74,11 @@ async def _stream_subprocess(args: str, **kwargs: Any) -> CompletedProcess:
         def tee_func(line: bytes, sink: List[str], pipe: Optional[Any]) -> None:
             line_str = line.decode("utf-8").rstrip()
             sink.append(line_str)
-            if not kwargs.get("quiet", False) and hasattr(pipe, "write"):
-                print(line_str, file=pipe)
+            if not kwargs.get("quiet", False):
+                if pipe and hasattr(pipe, "write"):
+                    print(line_str, file=pipe)
+                else:
+                    print(line_str)
 
         loop = asyncio.get_event_loop()
         tasks = []

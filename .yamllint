@@ -2,9 +2,6 @@
 # Based on ansible-lint config
 extends: default
 
-ignore: |
-  *{{cookiecutter**
-
 rules:
   braces:
     max-spaces-inside: 1
