@@ -1,6 +1,0 @@
-enrich>=1.2.5
-mock>=3.0.5
-pytest-cov>=2.7.1
-pytest-plus
-pytest-xdist>=1.29.0
-pytest>=6.1.0
