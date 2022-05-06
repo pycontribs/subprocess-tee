@@ -116,7 +116,7 @@ async def _stream_subprocess(args: str, **kwargs: Any) -> CompletedProcess:
 
 
 def run(args: Union[str, List[str]], **kwargs: Any) -> CompletedProcess:
-    """Drop-in replacement for subprocerss.run that behaves like tee.
+    """Drop-in replacement for subprocess.run that behaves like tee.
 
     Extra arguments added by our version:
     echo: False - Prints command before executing it.
