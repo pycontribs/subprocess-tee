@@ -18,7 +18,7 @@ except ImportError:
     from subprocess import list2cmdline as join  # pylint: disable=ungrouped-imports
 
 
-STREAM_LIMIT = 2 ** 23  # 8MB instead of default 64kb, override it if you need
+STREAM_LIMIT = 2**23  # 8MB instead of default 64kb, override it if you need
 
 
 async def _read_stream(stream: StreamReader, callback: Callable[..., Any]) -> None:
