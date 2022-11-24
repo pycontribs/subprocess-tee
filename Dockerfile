@@ -2,7 +2,7 @@ FROM alpine:latest
 # Alpine is used on purpose because it does not come with bash, and we
 # want to test that subprocess-tee works even on systems without bash shell.
 ENV BUILD_DEPS="\
-ansible-base \
+ansible-core \
 gcc \
 git \
 libffi-dev \
