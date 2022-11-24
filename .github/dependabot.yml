@@ -1,0 +1,17 @@
+---
+version: 2
+updates:
+  - package-ecosystem: pip
+    directory: /
+    schedule:
+      interval: daily
+    labels:
+      - skip-changelog
+    versioning-strategy: lockfile-only
+    open-pull-requests-limit: 0 # neutered
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: daily
+    labels:
+      - "skip-changelog"
