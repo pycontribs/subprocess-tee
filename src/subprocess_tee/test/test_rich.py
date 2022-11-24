@@ -1,11 +1,13 @@
 """Tests for rich module."""
 import sys
 
+import pytest
 from enrich.console import Console
 
 from subprocess_tee import run
 
 
+@pytest.mark.xfail(reason="Bug https://github.com/pycontribs/subprocess-tee/issues/58")
 def test_rich_console_ex() -> None:
     """Validate that ConsoleEx can capture output from print() calls."""
     console = Console(record=True, redirect=True)
