@@ -112,13 +112,7 @@ jobs:
         git fetch --prune --unshallow
         git fetch --depth=1 origin +refs/tags/*:refs/tags/*
     - name: Set up stock Python ${{ matrix.python-version }} from GitHub
-      if: "!endsWith(matrix.python-version, '-dev')"
       uses: actions/setup-python@v2
-      with:
-        python-version: ${{ matrix.python-version }}
-    - name: Set up Python ${{ matrix.python-version }} from deadsnakes
-      if: endsWith(matrix.python-version, '-dev')
-      uses: deadsnakes/action@v1.0.0
       with:
         python-version: ${{ matrix.python-version }}
     - name: Log the currently selected Python version info (${{ matrix.python-version }})
@@ -139,3 +133,16 @@ jobs:
           pip install tox
     - name: Run tox -e ${{ matrix.tox_env }}
       run: tox -e ${{ matrix.tox_env }}
+
+  check: # This job does nothing and is only used for the branch protection
+    if: always()
+    needs:
+      - alpine
+      - linters
+      - unit
+    runs-on: ubuntu-latest
+    steps:
+      - name: Decide whether the needed jobs succeeded or failed
+        uses: re-actors/alls-green@release/v1
+        with:
+          jobs: ${{ toJSON(needs) }}
