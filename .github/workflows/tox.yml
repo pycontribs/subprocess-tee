@@ -1,21 +1,16 @@
 name: tox
 
 on:
-  create:  # is used for publishing to PyPI and TestPyPI
-    tags:  # any tag regardless of its name, no branches
   push:  # only publishes pushes to the main branch to TestPyPI
     branches:  # any integration branch but not tag
-      - $default-branch
+      - main
     tags-ignore:
       - "**"
   pull_request:
-  schedule:
-    - cron: 1 0 * * *  # Run daily at 0:01 UTC
 
 jobs:
   linters:
-    name: >-
-      ${{ matrix.env.TOXENV }}
+    name: ${{ matrix.env.TOXENV }}
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
@@ -27,9 +22,6 @@ jobs:
         env:
         - TOXENV: lint
         - TOXENV: packaging
-    env:
-      TOX_PARALLEL_NO_SPINNER: 1
-
     steps:
     - uses: actions/checkout@master
     - name: Set up Python ${{ matrix.python-version }}
@@ -37,8 +29,7 @@ jobs:
       with:
         python-version: ${{ matrix.python-version }}
     - name: set PY_SHA256
-      run: |
-        echo "PY_SHA256=$(python -VV | sha256sum | cut -d' ' -f1)" >> $GITHUB_ENV
+      run: echo "PY_SHA256=$(python -VV | sha256sum | cut -d' ' -f1)" >> $GITHUB_ENV
     - name: Pre-commit cache
       uses: actions/cache@v1
       with:
@@ -53,25 +44,14 @@ jobs:
           ${{ runner.os }}-pip-
           ${{ runner.os }}-
     - name: Install tox
-      run: |
-        python -m pip install --upgrade tox
+      run: python -m pip install --upgrade tox
     - name: Log installed dists
-      run: >-
-        python -m pip freeze --all
-    - name: >-
-        Initialize tox envs
-      run: >-
-        python -m
-        tox
-        --parallel auto
-        --parallel-live
-        --notest
-        --skip-missing-interpreters false
-        -vv
+      run: python -m pip freeze --all
+    - name: Initialize tox envs
+      run: python -m tox --notest --skip-missing-interpreters false -vv
       env: ${{ matrix.env }}
     - name: Test with tox
-      run: |
-        python -m tox --parallel auto --parallel-live
+      run: python -m tox
       env: ${{ matrix.env }}
     - name: Archive logs
       uses: actions/upload-artifact@v2
@@ -89,8 +69,7 @@ jobs:
         run: docker build .
 
   unit:
-    name: >-
-      py${{ matrix.python-version }}@${{ matrix.os }}
+    name: py${{ matrix.python-version }}@${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     strategy:
       # fail-fast: false
@@ -130,10 +109,6 @@ jobs:
         - os: macOS-latest
           python-version: "3.10"
           tox_env: py310
-
-    env:
-      TOX_PARALLEL_NO_SPINNER: 1
-
     steps:
     - uses: actions/checkout@master
     - name: Get history and tags for SCM versioning to work
@@ -141,20 +116,16 @@ jobs:
         git fetch --prune --unshallow
         git fetch --depth=1 origin +refs/tags/*:refs/tags/*
     - name: Set up stock Python ${{ matrix.python-version }} from GitHub
-      if: >-
-        !endsWith(matrix.python-version, '-dev')
+      if: "!endsWith(matrix.python-version, '-dev')"
       uses: actions/setup-python@v2
       with:
         python-version: ${{ matrix.python-version }}
     - name: Set up Python ${{ matrix.python-version }} from deadsnakes
-      if: >-
-        endsWith(matrix.python-version, '-dev')
+      if: endsWith(matrix.python-version, '-dev')
       uses: deadsnakes/action@v1.0.0
       with:
         python-version: ${{ matrix.python-version }}
-    - name: >-
-        Log the currently selected Python
-        version info (${{ matrix.python-version }})
+    - name: Log the currently selected Python version info (${{ matrix.python-version }})
       run: |
         python --version --version
         which python
@@ -171,5 +142,4 @@ jobs:
           python -m pip install -U pip
           pip install tox
     - name: Run tox -e ${{ matrix.tox_env }}
-      run: |
-          tox -e ${{ matrix.tox_env }}
+      run: tox -e ${{ matrix.tox_env }}
