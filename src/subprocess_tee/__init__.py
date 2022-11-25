@@ -85,13 +85,13 @@ async def _stream_subprocess(args: str, **kwargs: Any) -> CompletedProcess:
         if process.stdout:
             tasks.append(
                 loop.create_task(
-                    _read_stream(process.stdout, lambda l: tee_func(l, out, stdout))
+                    _read_stream(process.stdout, lambda x: tee_func(x, out, stdout))
                 )
             )
         if process.stderr:
             tasks.append(
                 loop.create_task(
-                    _read_stream(process.stderr, lambda l: tee_func(l, err, stderr))
+                    _read_stream(process.stderr, lambda x: tee_func(x, err, stderr))
                 )
             )
 
