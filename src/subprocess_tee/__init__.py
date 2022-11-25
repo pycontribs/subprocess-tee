@@ -5,7 +5,15 @@ import platform
 import subprocess
 import sys
 from asyncio import StreamReader
+from importlib.metadata import PackageNotFoundError, version  # type: ignore
 from typing import TYPE_CHECKING, Any, Callable, Dict, List, Optional, Union
+
+try:
+    __version__ = version("subprocess-tee")
+except PackageNotFoundError:  # pragma: no branch
+    __version__ = "0.1.dev1"
+
+__all__ = ["run", "CompletedProcess", "__version__"]
 
 if TYPE_CHECKING:
     CompletedProcess = subprocess.CompletedProcess[Any]  # pylint: disable=E1136

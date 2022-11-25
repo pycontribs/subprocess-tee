@@ -1,10 +1,6 @@
 [build-system]
 requires = [
-  "pip >= 19.3.1",
-  "setuptools >= 42",
-  "setuptools_scm[toml] >= 3.5.0",
-  "setuptools_scm_git_archive >= 1.1",
-  "wheel >= 0.33.6",
+  "setuptools_scm[toml] >= 7.0.0",
 ]
 build-backend = "setuptools.build_meta"
 
@@ -58,9 +54,6 @@ test =[
     "pytest-xdist>=2.3.0",
     "pytest>=6.2.5",
 ]
-
-[tool.black]
-skip-string-normalization = false
 
 [tool.isort]
 profile = "black"
