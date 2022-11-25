@@ -5,7 +5,7 @@ import platform
 import subprocess
 import sys
 from asyncio import StreamReader
-from importlib.metadata import PackageNotFoundError, version # type: ignore
+from importlib.metadata import PackageNotFoundError, version  # type: ignore
 from typing import TYPE_CHECKING, Any, Callable, Dict, List, Optional, Union
 
 try:
