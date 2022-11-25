@@ -1,3 +1,0 @@
-prune asset
-global-include *.pyi
-global-include *.typed

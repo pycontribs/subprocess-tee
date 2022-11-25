@@ -8,6 +8,57 @@ requires = [
 ]
 build-backend = "setuptools.build_meta"
 
+[project]
+# https://peps.python.org/pep-0621/#readme
+requires-python = ">=3.8"
+dynamic = ["version"]
+
+name = "subprocess-tee"
+
+description = "subprocess-tee"
+readme = "README.md"
+authors = [
+    {"name"="Sorin Sbarnea", "email"="sorin.sbarnea@gmail.com"}
+]
+maintainers = [
+    {"name"="Sorin Sbarnea", "email"="sorin.sbarnea@gmail.com"}
+]
+license = {text = "MIT"}
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Environment :: Console",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Information Technology",
+    "Intended Audience :: System Administrators",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python",
+    "Topic :: System :: Systems Administration",
+    "Topic :: Utilities",
+]
+keywords = ["subprocess", "asyncio"]
+
+[project.urls]
+homepage = "https://github.com/pycontribs/subprocess-tee"
+documentation = "https://subprocess-tee.readthedocs.io"
+repository = "https://github.com/pycontribs/subprocess-tee"
+changelog = "https://github.com/pycontribs/subprocess-tee/releases"
+
+[project.optional-dependencies]
+test =[
+    "enrich>=1.2.6",
+    "molecule>=3.4.0",  # ansible is needed but no direct imports are made
+    "pytest-cov>=2.12.1",
+    "pytest-plus>=0.2",
+    "pytest-xdist>=2.3.0",
+    "pytest>=6.2.5",
+]
+
 [tool.black]
 skip-string-normalization = false
 

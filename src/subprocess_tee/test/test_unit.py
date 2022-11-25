@@ -127,7 +127,7 @@ def test_run_with_check_pass() -> None:
 
 
 def test_run_compat() -> None:
-    """Assure compatiblity with subprocess.run()"""
+    """Assure compatiblity with subprocess.run()."""
     cmd = ["seq", "10"]
     ours = run(cmd)
     original = subprocess.run(
