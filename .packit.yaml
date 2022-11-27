@@ -1,0 +1,37 @@
+---
+# spell-checker:ignore packit specfile copr epel
+# https://packit.dev/docs/configuration/
+# TODO(ssbarnea): Is there a way to template the package name in order to make
+# it easier to sync this config between projects?
+specfile_path: dist/subprocess-tee.spec
+actions:
+  create-archive:
+    - python3 -m build --sdist --outdir dist
+    - sh -c "ls dist/subprocess-tee-*.tar.gz"
+  get-current-version:
+    - python3 -m setuptools_scm --strip-dev
+  post-upstream-clone:
+    - bash -c "rm -f *.src.rpm && rm -rf dist/*.*"
+    - mkdir -p dist
+    - bash -c 'sed -e "s/VERSION_PLACEHOLDER/$(python3 -m setuptools_scm --strip-dev)/" .config/subprocess-tee.spec > dist/subprocess-tee.spec'
+srpm_build_deps:
+  - python3-build
+  - python3-setuptools_scm
+jobs:
+  - job: copr_build
+    targets:
+      # See https://packit.dev/docs/configuration/#aliases
+      # API to get available targets: https://api.dev.testing-farm.io/v0.1/composes/public
+      # Fedora 37 is the first version having a setuptools(-scm) that supports our PEP-621 metadata
+      - fedora-37
+      - fedora-rawhide
+    trigger: pull_request
+  # - job: tests
+  #   trigger: pull_request
+  #   metadata:
+  #     targets:
+  #     - fedora-all
+  # - job: propose_downstream
+  #   trigger: release
+  #   metadata:
+  #     dist-git-branch: master
