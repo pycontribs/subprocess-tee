@@ -88,7 +88,7 @@ async def _stream_subprocess(args: str, **kwargs: Any) -> CompletedProcess:
                 else:
                     print(line_str)
 
-        loop = asyncio.get_event_loop_policy().get_event_loop()
+        loop = asyncio.get_running_loop()
         tasks = []
         if process.stdout:
             tasks.append(
@@ -143,8 +143,7 @@ def run(args: Union[str, List[str]], **kwargs: Any) -> CompletedProcess:
     if kwargs.get("echo", False):
         print(f"COMMAND: {cmd}")
 
-    loop = asyncio.get_event_loop_policy().get_event_loop()
-    result = loop.run_until_complete(_stream_subprocess(cmd, **kwargs))
+    result = asyncio.run(_stream_subprocess(cmd, **kwargs))
     # we restore original args to mimic subproces.run()
     result.args = args
 
