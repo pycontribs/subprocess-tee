@@ -6,6 +6,7 @@ import subprocess
 import sys
 from asyncio import StreamReader
 from importlib.metadata import PackageNotFoundError, version  # type: ignore
+from shlex import join
 from typing import TYPE_CHECKING, Any, Callable, Dict, List, Optional, Union
 
 try:
@@ -19,11 +20,6 @@ if TYPE_CHECKING:
     CompletedProcess = subprocess.CompletedProcess[Any]  # pylint: disable=E1136
 else:
     CompletedProcess = subprocess.CompletedProcess
-
-try:
-    from shlex import join  # type: ignore
-except ImportError:
-    from subprocess import list2cmdline as join  # pylint: disable=ungrouped-imports
 
 
 STREAM_LIMIT = 2**23  # 8MB instead of default 64kb, override it if you need
@@ -88,7 +84,7 @@ async def _stream_subprocess(args: str, **kwargs: Any) -> CompletedProcess:
                 else:
                     print(line_str)
 
-        loop = asyncio.get_event_loop_policy().get_event_loop()
+        loop = asyncio.get_running_loop()
         tasks = []
         if process.stdout:
             tasks.append(
@@ -143,8 +139,7 @@ def run(args: Union[str, List[str]], **kwargs: Any) -> CompletedProcess:
     if kwargs.get("echo", False):
         print(f"COMMAND: {cmd}")
 
-    loop = asyncio.get_event_loop_policy().get_event_loop()
-    result = loop.run_until_complete(_stream_subprocess(cmd, **kwargs))
+    result = asyncio.run(_stream_subprocess(cmd, **kwargs))
     # we restore original args to mimic subproces.run()
     result.args = args
 
