@@ -61,5 +61,17 @@ test =[
 profile = "black"
 known_first_party = "subprocess_tee"
 
+[tool.mypy]
+python_version = 3.8
+color_output = true
+error_summary = true
+disallow_any_generics = true
+disallow_any_unimported = true
+disallow_untyped_calls = true
+disallow_untyped_defs = true
+warn_redundant_casts = true
+warn_return_any = true
+warn_unused_configs = true
+
 [tool.setuptools_scm]
 local_scheme = "no-local-version"
