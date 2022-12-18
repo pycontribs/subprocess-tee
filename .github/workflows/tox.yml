@@ -9,65 +9,19 @@ on:
   pull_request:
 
 jobs:
-  linters:
-    name: ${{ matrix.env.TOXENV }}
-    runs-on: ${{ matrix.os }}
-    strategy:
-      fail-fast: false
-      matrix:
-        python-version:
-        - 3.8
-        os:
-        - ubuntu-22.04
-        env:
-        - TOXENV: lint
-        - TOXENV: pkg
+  pre:
+    name: pre
+    runs-on: ubuntu-22.04
+    outputs:
+      matrix: ${{ steps.generate_matrix.outputs.matrix }}
     steps:
-
-    - uses: actions/checkout@v3
-
-    - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v4
-      with:
-        python-version: ${{ matrix.python-version }}
-
-    - name: set PY_SHA256
-      run: echo "PY_SHA256=$(python -VV | sha256sum | cut -d' ' -f1)" >> $GITHUB_ENV
-
-    - name: Pre-commit cache
-      uses: actions/cache@v3
-      with:
-        path: ~/.cache/pre-commit
-        key: ${{ runner.os }}-pre-commit-${{ env.PY_SHA256 }}-${{ hashFiles('setup.cfg') }}-${{ hashFiles('tox.ini') }}-${{ hashFiles('pyproject.toml') }}-${{ hashFiles('.pre-commit-config.yaml') }}-${{ hashFiles('pytest.ini') }}
-
-    - name: Pip cache
-      uses: actions/cache@v3
-      with:
-        path: ~/.cache/pip
-        key: ${{ runner.os }}-pip-${{ env.PY_SHA256 }}-${{ hashFiles('setup.cfg') }}-${{ hashFiles('tox.ini') }}-${{ hashFiles('pyproject.toml') }}-${{ hashFiles('.pre-commit-config.yaml') }}-${{ hashFiles('pytest.ini') }}
-        restore-keys: |
-          ${{ runner.os }}-pip-
-          ${{ runner.os }}-
-
-    - name: Install tox
-      run: python -m pip install --upgrade tox
-
-    - name: Log installed dists
-      run: python -m pip freeze --all
-
-    - name: Initialize tox envs
-      run: python -m tox --notest --skip-missing-interpreters false -vv
-      env: ${{ matrix.env }}
-
-    - name: Test with tox
-      run: python -m tox
-      env: ${{ matrix.env }}
-
-    - name: Archive logs
-      uses: actions/upload-artifact@v3
-      with:
-        name: logs.zip
-        path: .tox/**/log/
+      - name: Determine matrix
+        id: generate_matrix
+        uses: coactions/dynamic-matrix@v1
+        with:
+          other_names: |
+            lint
+            pkg
 
   alpine:
     name: alpine
@@ -84,49 +38,21 @@ jobs:
   unit:
     name: ${{ matrix.name }}
     runs-on: ${{ matrix.os || 'ubuntu-22.04' }}
+    needs: pre
     strategy:
-      matrix:
-        include:
-        - name: py38
-          os: ubuntu-22.04
-          python-version: "3.8"
-          tox_env: py38
-        - name: py38 (macos)
-          os: macOS-latest
-          python-version: "3.8"
-          tox_env: py38
-        - name: py39
-          os: ubuntu-22.04
-          python-version: "3.9"
-          tox_env: py39
-        - name: py310
-          os: ubuntu-22.04
-          python-version: "3.10"
-          tox_env: py310
-        - name: py311
-          os: ubuntu-22.04
-          python-version: "3.11"
-          tox_env: py311
-        - name: py311 (macos)
-          os: macOS-latest
-          python-version: "3.11"
-          tox_env: py311
-        - name: py312
-          os: ubuntu-22.04
-          python-version: "3.12-dev"
-          tox_env: py312
+      matrix: ${{ fromJson(needs.pre.outputs.matrix) }}
     steps:
 
     - uses: actions/checkout@main
       with:
         fetch-depth: 0
 
-    - name: Set up stock Python ${{ matrix.python-version }} from GitHub
+    - name: Set up stock Python ${{ matrix.python_version }} from GitHub
       uses: actions/setup-python@v4
       with:
-        python-version: ${{ matrix.python-version }}
+        python-version: ${{ matrix.python_version }}
 
-    - name: Log the currently selected Python version info (${{ matrix.python-version }})
+    - name: Log the currently selected Python version info (${{ matrix.python_version }})
       run: |
         python --version --version
         which python
@@ -144,15 +70,14 @@ jobs:
       run: |
           python -m pip install -U pip
           pip install tox
-    - name: Run tox run -e ${{ matrix.tox_env }}
-      run: tox run -e ${{ matrix.tox_env }}
+    - name: Run tox run -e ${{ matrix.passed_name }}
+      run: tox run -e ${{ matrix.passed_name }}
 
   check: # This job does nothing and is only used for the branch protection
     if: always()
     needs:
-      - alpine
-      - linters
       - unit
+      - alpine
     runs-on: ubuntu-22.04
     steps:
       - name: Decide whether the needed jobs succeeded or failed
