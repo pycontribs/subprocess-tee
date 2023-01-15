@@ -1,0 +1,38 @@
+site_name: subprocess-tee
+site_url: https://subprocess-tee.readthedocs.io/
+repo_url: https://github.com/pycontribs/subprocess-tee
+
+theme:
+  name: "material"
+  features:
+    - content.code.copy
+    - content.action.edit
+extra:
+  social:
+    - icon: fontawesome/brands/github-alt
+      link: https://github.com/squidfunk
+nav:
+  - home: index.md
+  - github: https://github.com/pycontribs/subprocess-tee
+
+plugins:
+  - search
+  - social
+  - mkdocstrings
+  - git-revision-date-localized:
+      enable_creation_date: true
+
+markdown_extensions:
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.superfences
+  - pymdownx.magiclink:
+      repo_url_shortener: true
+      repo_url_shorthand: true
+      social_url_shorthand: true
+      social_url_shortener: true
+      user: facelessuser
+      repo: pymdown-extensions
+      normalize_issue_symbols: true
