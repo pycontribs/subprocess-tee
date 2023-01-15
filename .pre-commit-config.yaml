@@ -53,7 +53,7 @@ repos:
           - pytest>=6.1.2
           - enrich>=1.2.5
   - repo: https://github.com/PyCQA/pylint
-    rev: v2.15.9
+    rev: v2.15.10
     hooks:
       - id: pylint
         additional_dependencies:
