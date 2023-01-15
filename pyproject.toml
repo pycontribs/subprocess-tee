@@ -55,6 +55,7 @@ changelog = "https://github.com/pycontribs/subprocess-tee/releases"
 docs = [
   "argparse-manpage",
   "cairosvg",
+  "markdown-include",
   "mkdocs",
   "mkdocs-git-revision-date-localized-plugin",
   "mkdocs-material",
