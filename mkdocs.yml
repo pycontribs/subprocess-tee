@@ -36,3 +36,5 @@ markdown_extensions:
       user: facelessuser
       repo: pymdown-extensions
       normalize_issue_symbols: true
+  - markdown_include.include:
+        base_path: docs
