@@ -52,6 +52,18 @@ repository = "https://github.com/pycontribs/subprocess-tee"
 changelog = "https://github.com/pycontribs/subprocess-tee/releases"
 
 [project.optional-dependencies]
+docs = [
+  "argparse-manpage",
+  "cairosvg",
+  "mkdocs",
+  "mkdocs-git-revision-date-localized-plugin",
+  "mkdocs-material",
+  "mkdocs-material-extensions",
+  "mkdocstrings",
+  "mkdocstrings-python",
+  "pillow",
+  "pymdown-extensions",
+]
 test =[
     "enrich>=1.2.6",
     "molecule>=3.4.0",  # ansible is needed but no direct imports are made
