@@ -42,7 +42,7 @@ repos:
         types: [file, yaml]
         entry: yamllint --strict
   - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v1.0.1
+    rev: v1.1.1
     hooks:
       - id: mypy
         # empty args needed in order to match mypy cli behavior
@@ -53,7 +53,7 @@ repos:
           - pytest>=6.1.2
           - enrich>=1.2.5
   - repo: https://github.com/PyCQA/pylint
-    rev: v2.16.2
+    rev: v2.17.0
     hooks:
       - id: pylint
         additional_dependencies:
