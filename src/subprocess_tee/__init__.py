@@ -6,7 +6,7 @@ import subprocess
 import sys
 from asyncio import StreamReader
 from importlib.metadata import PackageNotFoundError, version  # type: ignore
-from shlex import join
+from shlex import join, quote
 from typing import TYPE_CHECKING, Any, Callable, Dict, List, Optional, Union
 
 try:
@@ -127,7 +127,10 @@ def run(args: Union[str, List[str]], **kwargs: Any) -> CompletedProcess:
     quiet: False - Avoid printing output
     """
     if isinstance(args, str):
-        cmd = args
+        if kwargs.get("shell"):
+            cmd = args
+        else:
+            cmd = quote(args)
     else:
         # run was called with a list instead of a single item but asyncio
         # create_subprocess_shell requires command as a single string, so

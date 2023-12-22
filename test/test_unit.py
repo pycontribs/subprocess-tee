@@ -11,7 +11,7 @@ from subprocess_tee import run
 
 def test_run_string() -> None:
     """Valida run() called with a single string command."""
-    cmd = "echo 111 && >&2 echo 222"
+    cmd = "echo 111 && echo 222 >&2"
     old_result = subprocess.run(
         cmd,
         shell=True,
@@ -20,7 +20,7 @@ def test_run_string() -> None:
         stderr=subprocess.PIPE,
         check=False,
     )
-    result = run(cmd)
+    result = run(cmd, shell=True)
     assert result.returncode == old_result.returncode
     assert result.stdout == old_result.stdout
     assert result.stderr == old_result.stderr
@@ -74,7 +74,7 @@ def test_run_echo(capsys: CaptureFixture[str]) -> None:
 def test_run_with_env(env: Dict[str, str]) -> None:
     """Validate that passing custom env to run() works."""
     env["FOO"] = "BAR"
-    result = run("echo $FOO", env=env, echo=True)
+    result = run("echo $FOO", env=env, echo=True, shell=True)
     assert result.stdout == "BAR\n"
 
 
@@ -82,16 +82,22 @@ def test_run_shell() -> None:
     """Validate run call with multiple shell commands works."""
     cmd = "echo a && echo b && false || exit 4"
     # "python --version"
-    result = run(cmd, echo=True)
+    result = run(cmd, echo=True, shell=True)
     assert result.returncode == 4
     assert result.stdout == "a\nb\n"
+
+
+def test_run_shell_false() -> None:
+    """Shell commands should not work if 'shell=False'."""
+    with pytest.raises(subprocess.CalledProcessError):
+        run("echo 42", check=True)
 
 
 def test_run_shell_undefined() -> None:
     """Validate run call with multiple shell commands works."""
     cmd = "echo a && echo b && false || exit 4"
     # "python --version"
-    result = run(cmd, echo=True, env={})
+    result = run(cmd, echo=True, env={}, shell=True)
     assert result.returncode == 4
     assert result.stdout == "a\nb\n"
 
@@ -99,7 +105,7 @@ def test_run_shell_undefined() -> None:
 def test_run_cwd() -> None:
     """Validate that run accepts cwd and respects it."""
     cmd = "pwd"
-    result = run(cmd, echo=True, cwd="/")
+    result = run(cmd, echo=True, cwd="/", shell=True)
     assert result.returncode == 0
     assert result.stdout == "/\n"
 

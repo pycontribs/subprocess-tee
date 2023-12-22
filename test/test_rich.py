@@ -19,7 +19,7 @@ def test_rich_console_ex() -> None:
     # an exception. Some libraries may still sometimes send bytes to the
     # streams, notable example being click.
     # sys.stdout.write(b"epsilon\n")  # type: ignore
-    proc = run("echo 123")
+    proc = run("echo 123", shell=True)
     assert proc.stdout == "123\n"
     text = console.export_text()
     assert text == "alpha\nbeta\ngamma\ndelta\n123\n"
@@ -30,7 +30,7 @@ def test_rich_console_ex_ansi() -> None:
     print()
     console = Console(force_terminal=True, record=True, redirect=True)
     console.print("[green]this from Console.print()[/green]", style="red")
-    proc = run(r'echo -e "\033[31mred\033[0m"')
+    proc = run(r'echo -e "\033[31mred\033[0m"', shell=True)
     assert proc.returncode == 0
     assert "red" in proc.stdout
 
