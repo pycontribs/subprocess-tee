@@ -8,10 +8,13 @@ from _pytest.capture import CaptureFixture
 
 from subprocess_tee import run
 
+FAILING_CMD = "echo stdout && echo stderr >&2 && exit 42"
+SUCCEEDING_CMD = "echo stdout && echo stderr >&2"
+
 
 def test_run_string() -> None:
     """Valida run() called with a single string command."""
-    cmd = "echo 111 && >&2 echo 222"
+    cmd = "echo 111 && echo 222 >&2"
     old_result = subprocess.run(
         cmd,
         shell=True,
@@ -107,20 +110,27 @@ def test_run_cwd() -> None:
 def test_run_with_check_raise() -> None:
     """Asure compatibility with subprocess.run when using check (return 1)."""
     with pytest.raises(subprocess.CalledProcessError) as ours:
-        run("false", check=True)
+        run(FAILING_CMD, check=True, shell=True)
     with pytest.raises(subprocess.CalledProcessError) as original:
-        subprocess.run("false", check=True, universal_newlines=True)
-    assert ours.value.returncode == original.value.returncode
+        subprocess.run(
+            FAILING_CMD,
+            check=True,
+            universal_newlines=True,
+            shell=True,
+            capture_output=True,
+        )
     assert ours.value.cmd == original.value.cmd
-    assert ours.value.output == original.value.output
-    assert ours.value.stdout == original.value.stdout
-    assert ours.value.stderr == original.value.stderr
+    _check_failed_run(ours.value)
+    _check_failed_run(original.value)
 
 
-def test_run_with_check_pass() -> None:
+@pytest.mark.parametrize("check", [True, False])
+def test_run_with_check_pass(check) -> None:
     """Asure compatibility with subprocess.run when using check (return 0)."""
-    ours = run("true", check=True)
-    original = subprocess.run("true", check=True, universal_newlines=True)
+    ours = run("true", check=check)
+    original = subprocess.run(
+        "true", check=check, universal_newlines=True, capture_output=True
+    )
     assert ours.returncode == original.returncode
     assert ours.args == original.args
     assert ours.stdout == original.stdout
@@ -129,16 +139,28 @@ def test_run_with_check_pass() -> None:
 
 def test_run_compat() -> None:
     """Assure compatiblity with subprocess.run()."""
-    cmd = ["seq", "10"]
-    ours = run(cmd)
+    ours = run(SUCCEEDING_CMD)
     original = subprocess.run(
-        cmd,
+        SUCCEEDING_CMD,
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
         universal_newlines=True,
         check=False,
+        shell=True,
     )
-    assert ours.returncode == original.returncode
-    assert ours.stdout == original.stdout
-    assert ours.stderr == original.stderr
     assert ours.args == original.args
+    _check_succeeded_run(ours)
+    _check_succeeded_run(original)
+
+
+def _check_succeeded_run(completed_process):
+    assert completed_process.returncode == 0
+    assert completed_process.stdout == "stdout\n"
+    assert completed_process.stderr == "stderr\n"
+
+
+def _check_failed_run(completed_process):
+    assert completed_process.returncode == 42
+    assert completed_process.output == "stdout\n"
+    assert completed_process.stdout == "stdout\n"
+    assert completed_process.stderr == "stderr\n"
