@@ -1,4 +1,5 @@
 """Functional tests for subprocess-tee library."""
+
 import subprocess
 
 
