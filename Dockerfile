@@ -16,12 +16,13 @@ py3-ruamel.yaml \
 
 RUN \
 apk add --update --no-cache \
-${BUILD_DEPS} && \
-pip3 install -U pip
+${BUILD_DEPS}
 
 COPY . /root/code/
 WORKDIR /root/code/
 RUN \
 python3 --version && \
+python3 -m venv venv && \
+. venv/bin/activate && \
 python3 -m pip install ".[test]" && \
 python3 -m pytest
