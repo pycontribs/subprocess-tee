@@ -143,3 +143,10 @@ def test_run_compat() -> None:
     assert ours.stdout == original.stdout
     assert ours.stderr == original.stderr
     assert ours.args == original.args
+
+
+def test_run_waits_for_completion(tmp_path):
+    """run() should always wait for the process to complete."""
+    tmpfile = tmp_path / "output.txt"
+    run(f"sleep 0.1 && echo 42 > {str(tmpfile)}")
+    assert tmpfile.read_text() == "42\n"
