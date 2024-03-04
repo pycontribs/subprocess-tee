@@ -35,7 +35,9 @@ async def _read_stream(stream: StreamReader, callback: Callable[..., Any]) -> No
             break
 
 
-async def _stream_subprocess(args: str, **kwargs: Any) -> CompletedProcess:
+async def _stream_subprocess(
+    args: Union[str, List[str]], **kwargs: Any
+) -> CompletedProcess:
     platform_settings: Dict[str, Any] = {}
     if platform.system() == "Windows":
         platform_settings["env"] = os.environ
@@ -65,14 +67,24 @@ async def _stream_subprocess(args: str, **kwargs: Any) -> CompletedProcess:
 
         # Some users are reporting that default (undocumented) limit 64k is too
         # low
-        process = await asyncio.create_subprocess_shell(
-            args,
-            limit=STREAM_LIMIT,
-            stdin=kwargs.get("stdin", False),
-            stdout=asyncio.subprocess.PIPE,
-            stderr=asyncio.subprocess.PIPE,
-            **platform_settings,
-        )
+        if isinstance(args, str):
+            process = await asyncio.create_subprocess_shell(
+                args,
+                limit=STREAM_LIMIT,
+                stdin=kwargs.get("stdin", False),
+                stdout=asyncio.subprocess.PIPE,
+                stderr=asyncio.subprocess.PIPE,
+                **platform_settings,
+            )
+        else:
+            process = await asyncio.create_subprocess_exec(
+                *args,
+                limit=STREAM_LIMIT,
+                stdin=kwargs.get("stdin", False),
+                stdout=asyncio.subprocess.PIPE,
+                stderr=asyncio.subprocess.PIPE,
+                **platform_settings,
+            )
         out: List[str] = []
         err: List[str] = []
 
@@ -140,7 +152,7 @@ def run(args: Union[str, List[str]], **kwargs: Any) -> CompletedProcess:
     if kwargs.get("echo", False):
         print(f"COMMAND: {cmd}")
 
-    result = asyncio.run(_stream_subprocess(cmd, **kwargs))
+    result = asyncio.run(_stream_subprocess(args, **kwargs))
     # we restore original args to mimic subproces.run()
     result.args = args
 
