@@ -1,7 +1,14 @@
 """Functional tests for subprocess-tee library."""
+
 import subprocess
+import sys
+
+import pytest
 
 
+@pytest.mark.skipif(
+    sys.version_info < (3, 9), reason="molecule test requires python 3.9+"
+)
 def test_molecule() -> None:
     """Ensures molecule does display output of its subprocesses."""
     result = subprocess.run(

@@ -1,5 +1,7 @@
 """Unittests."""
+
 import subprocess
+import sys
 from typing import Dict
 
 import pytest
@@ -30,7 +32,7 @@ def test_run_list() -> None:
     # NOTICE: subprocess.run() does fail to capture any output when cmd is
     # a list and you specific shell=True. Still, when not mentioning shell,
     # it does work.
-    cmd = ["python3", "--version"]
+    cmd = [sys.executable, "--version"]
     old_result = subprocess.run(
         cmd,
         # shell=True,
@@ -47,7 +49,7 @@ def test_run_list() -> None:
 
 def test_run_echo(capsys: CaptureFixture[str]) -> None:
     """Validate run call with echo dumps command."""
-    cmd = ["python3", "--version"]
+    cmd = [sys.executable, "--version"]
     old_result = subprocess.run(
         cmd,
         # shell=True,
@@ -141,3 +143,10 @@ def test_run_compat() -> None:
     assert ours.stdout == original.stdout
     assert ours.stderr == original.stderr
     assert ours.args == original.args
+
+
+def test_run_waits_for_completion(tmp_path):
+    """run() should always wait for the process to complete."""
+    tmpfile = tmp_path / "output.txt"
+    run(f"sleep 0.1 && echo 42 > {str(tmpfile)}")
+    assert tmpfile.read_text() == "42\n"

@@ -5,16 +5,16 @@ exclude: |
     )
 repos:
   - repo: https://github.com/PyCQA/isort
-    rev: 5.12.0
+    rev: 5.13.2
     hooks:
       - id: isort
   - repo: https://github.com/psf/black
-    rev: 23.1.0
+    rev: 24.4.2
     hooks:
       - id: black
         language_version: python3
   - repo: https://github.com/pre-commit/pre-commit-hooks.git
-    rev: v4.4.0
+    rev: v4.6.0
     hooks:
       - id: end-of-file-fixer
       - id: trailing-whitespace
@@ -25,7 +25,7 @@ repos:
       - id: debug-statements
         language_version: python3
   - repo: https://github.com/pycqa/flake8.git
-    rev: 6.0.0
+    rev: 7.0.0
     hooks:
       - id: flake8
         additional_dependencies:
@@ -35,14 +35,14 @@ repos:
           - pydocstyle>=5.1.1
         language_version: python3
   - repo: https://github.com/adrienverge/yamllint.git
-    rev: v1.29.0
+    rev: v1.35.1
     hooks:
       - id: yamllint
         files: \.(yaml|yml)$
         types: [file, yaml]
         entry: yamllint --strict
   - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v1.1.1
+    rev: v1.10.0
     hooks:
       - id: mypy
         # empty args needed in order to match mypy cli behavior
@@ -53,7 +53,7 @@ repos:
           - pytest>=6.1.2
           - enrich>=1.2.5
   - repo: https://github.com/PyCQA/pylint
-    rev: v2.17.0
+    rev: v3.2.3
     hooks:
       - id: pylint
         additional_dependencies:
