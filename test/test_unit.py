@@ -4,7 +4,7 @@ import subprocess
 import sys
 
 import pytest
-from _pytest.capture import CaptureFixture
+from pytest import CaptureFixture
 
 from subprocess_tee import run
 
