@@ -12,7 +12,7 @@ from subprocess_tee import run
 
 def test_run_string() -> None:
     """Valida run() called with a single string command."""
-    cmd = "echo 111 && >&2 echo 222"
+    cmd = 'bash -c "echo 111 && >&2 echo 222"'
     old_result = subprocess.run(
         cmd,
         shell=True,
