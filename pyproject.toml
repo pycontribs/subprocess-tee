@@ -8,7 +8,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 # https://peps.python.org/pep-0621/#readme
-requires-python = ">=3.8"
+requires-python = ">=3.9"
 dynamic = ["version"]
 
 name = "subprocess-tee"
@@ -34,7 +34,6 @@ classifiers = [
     "Operating System :: POSIX :: Linux",
     "Operating System :: POSIX",
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.8",
     "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
@@ -79,7 +78,7 @@ profile = "black"
 known_first_party = "subprocess_tee"
 
 [tool.mypy]
-python_version = 3.8
+python_version = "3.9"
 color_output = true
 error_summary = true
 disallow_any_generics = true

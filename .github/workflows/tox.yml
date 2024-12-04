@@ -19,6 +19,7 @@ jobs:
         id: generate_matrix
         uses: coactions/dynamic-matrix@v1
         with:
+          min_python: "3.9"
           other_names: |
             lint
             docs
