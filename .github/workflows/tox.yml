@@ -1,86 +1,117 @@
+---
 name: tox
 
 on:
-  push:  # only publishes pushes to the main branch to TestPyPI
-    branches:  # any integration branch but not tag
-      - main
-    tags-ignore:
-      - "**"
+  push:
+    branches:
+      - "main"
   pull_request:
+    branches:
+      - "main"
+  schedule:
+    - cron: "0 0 * * *"
+  workflow_call:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.sha }}
+  cancel-in-progress: true
+
+env:
+  FORCE_COLOR: 1 # tox, pytest, ansible-lint
+  PY_COLORS: 1
 
 jobs:
-  pre:
-    name: pre
-    runs-on: ubuntu-22.04
+  prepare:
+    name: prepare
+    runs-on: ubuntu-24.04
     outputs:
       matrix: ${{ steps.generate_matrix.outputs.matrix }}
     steps:
       - name: Determine matrix
         id: generate_matrix
-        uses: coactions/dynamic-matrix@v1
+        uses: coactions/dynamic-matrix@v4
         with:
           min_python: "3.9"
           other_names: |
             lint
             docs
             pkg
+            alpine
 
-  alpine:
-    name: alpine
-    runs-on: ubuntu-22.04
-    steps:
-      - name: Check out code
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - name: Run docker build
-        run: docker build .
-
-  unit:
+  build:
     name: ${{ matrix.name }}
-    runs-on: ${{ matrix.os || 'ubuntu-22.04' }}
-    needs: pre
+    runs-on: ${{ matrix.os || 'ubuntu-24.04' }}
+    needs:
+      - prepare
     strategy:
-      matrix: ${{ fromJson(needs.pre.outputs.matrix) }}
+      matrix: ${{ fromJson(needs.prepare.outputs.matrix) }}
     steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # needed by setuptools-scm
+          submodules: true
 
-    - uses: actions/checkout@main
-      with:
-        fetch-depth: 0
+      - name: Set pre-commit cache
+        uses: actions/cache@v4
+        if: ${{ matrix.name == 'lint' }}
+        with:
+          path: |
+            ~/.cache/pre-commit
+          key: pre-commit-${{ matrix.name }}-${{ hashFiles('.pre-commit-config.yaml') }}
 
-    - name: Set up stock Python ${{ matrix.python_version }} from GitHub
-      uses: actions/setup-python@v5
-      with:
-        python-version: ${{ matrix.python_version }}
+      - name: Set up Python ${{ matrix.python_version || '3.10' }}
+        if: "!contains(matrix.shell, 'wsl')"
+        uses: actions/setup-python@v5
+        with:
+          cache: pip
+          python-version: ${{ matrix.python_version || '3.10' }}
 
-    - name: Log the currently selected Python version info (${{ matrix.python_version }})
-      run: |
-        python --version --version
-        which python
+      - name: Install tox
+        run: |
+          python3 -m pip install --upgrade pip
+          python3 -m pip install --upgrade "tox>=4.0.0" "tox-uv>=1.16.0" uv
 
-    - name: Pip cache
-      uses: actions/cache@v4
-      with:
-        path: ~/.cache/pip
-        key: ${{ runner.os }}-pip-${{ env.PY_SHA256 }}-${{ hashFiles('setup.cfg') }}-${{ hashFiles('tox.ini') }}-${{ hashFiles('pyproject.toml') }}-${{ hashFiles('.pre-commit-config.yaml') }}-${{ hashFiles('pytest.ini') }}
-        restore-keys: |
-          ${{ runner.os }}-pip-
-          ${{ runner.os }}-
+      - name: Log installed dists
+        run: python3 -m pip freeze --all
 
-    - name: Install tox
-      run: |
-          python -m pip install -U pip
-          pip install tox
-    - name: Run tox run -e ${{ matrix.passed_name }}
-      run: tox run -e ${{ matrix.passed_name }}
+      - run: ${{ matrix.command }}
 
+      - run: ${{ matrix.command2 }}
+        if: ${{ matrix.command2 }}
+
+      - run: ${{ matrix.command3 }}
+        if: ${{ matrix.command3 }}
+
+      - run: ${{ matrix.command4 }}
+        if: ${{ matrix.command4 }}
+
+      - run: ${{ matrix.command5 }}
+        if: ${{ matrix.command5 }}
+
+      - name: Archive logs
+        uses: actions/upload-artifact@v4
+        with:
+          name: logs-${{ matrix.name }}.zip
+          include-hidden-files: true
+          path: |
+            .tox/**/log/
+            .tox/**/.coverage*
+            .tox/**/coverage.xml
+
+      - name: Report failure if git reports dirty status
+        run: |
+          if [[ -n $(git status -s) ]]; then
+            # shellcheck disable=SC2016
+            echo -n '::error file=git-status::'
+            printf '### Failed as git reported modified and/or untracked files\n```\n%s\n```\n' "$(git status -s)" | tee -a "$GITHUB_STEP_SUMMARY"
+            exit 99
+          fi
+        # https://github.com/actions/toolkit/issues/193
   check: # This job does nothing and is only used for the branch protection
     if: always()
     needs:
-      - unit
-      - alpine
-    runs-on: ubuntu-22.04
+      - build
+    runs-on: ubuntu-24.04
     steps:
       - name: Decide whether the needed jobs succeeded or failed
         uses: re-actors/alls-green@release/v1

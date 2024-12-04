@@ -68,6 +68,7 @@ test =[
     "enrich>=1.2.6",
     "molecule>=3.4.0",  # ansible is needed but no direct imports are made
     "pytest-cov>=2.12.1",
+    "pytest-instafail",
     "pytest-plus>=0.2",
     "pytest-xdist>=2.3.0",
     "pytest>=6.2.5",
