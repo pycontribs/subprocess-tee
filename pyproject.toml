@@ -1,55 +1,47 @@
 [build-system]
+build-backend = "setuptools.build_meta"
 requires = [
   # Needed for PEP 621 support
   "setuptools >= 61.0",
-  "setuptools_scm[toml] >= 7.0.0",
+  "setuptools_scm[toml] >= 7.0.0"
 ]
-build-backend = "setuptools.build_meta"
 
 [project]
+authors = [
+  {"email" = "sorin.sbarnea@gmail.com", "name" = "Sorin Sbarnea"}
+]
+classifiers = [
+  # https://pypi.org/classifiers/
+  "Development Status :: 5 - Production/Stable",
+  "Environment :: Console",
+  "Intended Audience :: Developers",
+  "Intended Audience :: Information Technology",
+  "Intended Audience :: System Administrators",
+  "License :: OSI Approved :: MIT License",
+  "Operating System :: MacOS",
+  "Operating System :: POSIX :: Linux",
+  "Operating System :: POSIX",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.9",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "Programming Language :: Python",
+  "Topic :: System :: Systems Administration",
+  "Topic :: Utilities"
+]
+description = "subprocess-tee"
+dynamic = ["version"]
+keywords = ["subprocess", "asyncio"]
+license = {text = "MIT"}
+maintainers = [
+  {"email" = "sorin.sbarnea@gmail.com", "name" = "Sorin Sbarnea"}
+]
+name = "subprocess-tee"
+readme = "README.md"
 # https://peps.python.org/pep-0621/#readme
 requires-python = ">=3.9"
-dynamic = ["version"]
-
-name = "subprocess-tee"
-
-description = "subprocess-tee"
-readme = "README.md"
-authors = [
-    {"name"="Sorin Sbarnea", "email"="sorin.sbarnea@gmail.com"}
-]
-maintainers = [
-    {"name"="Sorin Sbarnea", "email"="sorin.sbarnea@gmail.com"}
-]
-license = {text = "MIT"}
-classifiers = [
-    # https://pypi.org/classifiers/
-    "Development Status :: 5 - Production/Stable",
-    "Environment :: Console",
-    "Intended Audience :: Developers",
-    "Intended Audience :: Information Technology",
-    "Intended Audience :: System Administrators",
-    "License :: OSI Approved :: MIT License",
-    "Operating System :: MacOS",
-    "Operating System :: POSIX :: Linux",
-    "Operating System :: POSIX",
-    "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.9",
-    "Programming Language :: Python :: 3.10",
-    "Programming Language :: Python :: 3.11",
-    "Programming Language :: Python :: 3.12",
-    "Programming Language :: Python :: 3.13",
-    "Programming Language :: Python",
-    "Topic :: System :: Systems Administration",
-    "Topic :: Utilities",
-]
-keywords = ["subprocess", "asyncio"]
-
-[project.urls]
-homepage = "https://github.com/pycontribs/subprocess-tee"
-documentation = "https://subprocess-tee.readthedocs.io"
-repository = "https://github.com/pycontribs/subprocess-tee"
-changelog = "https://github.com/pycontribs/subprocess-tee/releases"
 
 [project.optional-dependencies]
 docs = [
@@ -63,33 +55,44 @@ docs = [
   "mkdocstrings",
   "mkdocstrings-python",
   "pillow",
-  "pymdown-extensions",
+  "pymdown-extensions"
 ]
-test =[
-    "enrich>=1.2.6",
-    "molecule>=3.4.0",  # ansible is needed but no direct imports are made
-    "pytest-cov>=2.12.1",
-    "pytest-instafail",
-    "pytest-plus>=0.2",
-    "pytest-xdist>=2.3.0",
-    "pytest>=6.2.5",
+test = [
+  "enrich>=1.2.6",
+  "molecule>=3.4.0", # ansible is needed but no direct imports are made
+  "pytest-cov>=2.12.1",
+  "pytest-instafail",
+  "pytest-plus>=0.2",
+  "pytest-xdist>=2.3.0",
+  "pytest>=6.2.5"
 ]
+
+[project.urls]
+changelog = "https://github.com/pycontribs/subprocess-tee/releases"
+documentation = "https://subprocess-tee.readthedocs.io"
+homepage = "https://github.com/pycontribs/subprocess-tee"
+repository = "https://github.com/pycontribs/subprocess-tee"
 
 [tool.isort]
-profile = "black"
 known_first_party = "subprocess_tee"
+profile = "black"
 
 [tool.mypy]
-python_version = "3.9"
 color_output = true
-error_summary = true
 disallow_any_generics = true
 disallow_any_unimported = true
 disallow_untyped_calls = true
 disallow_untyped_defs = true
+error_summary = true
+python_version = "3.9"
 warn_redundant_casts = true
 warn_return_any = true
 warn_unused_configs = true
 
 [tool.setuptools_scm]
 local_scheme = "no-local-version"
+
+[tool.tomlsort]
+in_place = true
+sort_inline_tables = true
+sort_table_keys = true
