@@ -19,7 +19,7 @@ def test_rich_console_ex() -> None:
     # While not supposed to happen we want to be sure that this will not raise
     # an exception. Some libraries may still sometimes send bytes to the
     # streams, notable example being click.
-    # sys.stdout.write(b"epsilon\n")  # type: ignore
+    # sys.stdout.write(b"epsilon\n")
     proc = run("echo 123")
     assert proc.stdout == "123\n"
     text = console.export_text()

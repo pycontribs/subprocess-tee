@@ -2,7 +2,6 @@
 
 import subprocess
 import sys
-from typing import Dict
 
 import pytest
 from _pytest.capture import CaptureFixture
@@ -16,9 +15,8 @@ def test_run_string() -> None:
     old_result = subprocess.run(
         cmd,
         shell=True,
-        universal_newlines=True,
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE,
+        text=True,
+        capture_output=True,
         check=False,
     )
     result = run(cmd)
@@ -36,9 +34,8 @@ def test_run_list() -> None:
     old_result = subprocess.run(
         cmd,
         # shell=True,
-        universal_newlines=True,
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE,
+        text=True,
+        capture_output=True,
         check=False,
     )
     result = run(cmd)
@@ -53,9 +50,8 @@ def test_run_echo(capsys: CaptureFixture[str]) -> None:
     old_result = subprocess.run(
         cmd,
         # shell=True,
-        universal_newlines=True,
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE,
+        text=True,
+        capture_output=True,
         check=False,
     )
     result = run(cmd, echo=True)
@@ -64,7 +60,7 @@ def test_run_echo(capsys: CaptureFixture[str]) -> None:
     assert result.stderr == old_result.stderr
     out, err = capsys.readouterr()
     assert out.startswith("COMMAND:")
-    assert err == ""
+    assert not err
 
 
 @pytest.mark.parametrize(
@@ -72,7 +68,7 @@ def test_run_echo(capsys: CaptureFixture[str]) -> None:
     [{}, {"SHELL": "/bin/sh"}, {"SHELL": "/bin/bash"}, {"SHELL": "/bin/zsh"}],
     ids=["auto", "sh", "bash", "zsh"],
 )
-def test_run_with_env(env: Dict[str, str]) -> None:
+def test_run_with_env(env: dict[str, str]) -> None:
     """Validate that passing custom env to run() works."""
     env["FOO"] = "BAR"
     result = run("echo $FOO", env=env, echo=True)
@@ -110,7 +106,7 @@ def test_run_with_check_raise() -> None:
     with pytest.raises(subprocess.CalledProcessError) as ours:
         run("false", check=True)
     with pytest.raises(subprocess.CalledProcessError) as original:
-        subprocess.run("false", check=True, universal_newlines=True)
+        subprocess.run("false", check=True, text=True)
     assert ours.value.returncode == original.value.returncode
     assert ours.value.cmd == original.value.cmd
     assert ours.value.output == original.value.output
@@ -121,7 +117,7 @@ def test_run_with_check_raise() -> None:
 def test_run_with_check_pass() -> None:
     """Asure compatibility with subprocess.run when using check (return 0)."""
     ours = run("true", check=True)
-    original = subprocess.run("true", check=True, universal_newlines=True)
+    original = subprocess.run("true", check=True, text=True)
     assert ours.returncode == original.returncode
     assert ours.args == original.args
     assert ours.stdout == original.stdout
@@ -134,9 +130,8 @@ def test_run_compat() -> None:
     ours = run(cmd)
     original = subprocess.run(
         cmd,
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE,
-        universal_newlines=True,
+        capture_output=True,
+        text=True,
         check=False,
     )
     assert ours.returncode == original.returncode
@@ -148,5 +143,5 @@ def test_run_compat() -> None:
 def test_run_waits_for_completion(tmp_path):
     """run() should always wait for the process to complete."""
     tmpfile = tmp_path / "output.txt"
-    run(f"sleep 0.1 && echo 42 > {str(tmpfile)}")
+    run(f"sleep 0.1 && echo 42 > {tmpfile!s}")
     assert tmpfile.read_text() == "42\n"
