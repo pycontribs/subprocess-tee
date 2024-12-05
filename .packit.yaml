@@ -6,8 +6,9 @@
 specfile_path: dist/subprocess-tee.spec
 actions:
   create-archive:
+    - sh -c "rm dist/*.tar.gz >/dev/null || true"
     - python3 -m build --sdist --outdir dist
-    - sh -c "ls dist/subprocess-tee-*.tar.gz"
+    - sh -c "ls dist/subprocess_tee-*.tar.gz"
   get-current-version:
     - python3 -m setuptools_scm --strip-dev
   post-upstream-clone:
@@ -17,21 +18,29 @@ actions:
 srpm_build_deps:
   - python3-build
   - python3-setuptools_scm
+  - python3-pytest
 jobs:
   - job: copr_build
-    targets:
-      # See https://packit.dev/docs/configuration/#aliases
-      # API to get available targets: https://api.dev.testing-farm.io/v0.1/composes/public
-      # Fedora 37 is the first version having a setuptools(-scm) that supports our PEP-621 metadata
-      - fedora-37
-      - fedora-rawhide
     trigger: pull_request
-  # - job: tests
-  #   trigger: pull_request
-  #   metadata:
-  #     targets:
-  #     - fedora-all
+    branch: main
+    targets:
+      - fedora-rawhide-x86_64
+      - fedora-rawhide-aarch64
+      - fedora-latest-x86_64
+      - fedora-latest-aarch64
+      # Missing python3-build see https://bugzilla.redhat.com/show_bug.cgi?id=2129071
+      # - centos-stream-9-aarch64
+      # - centos-stream-9-x86_64
+  - job: tests
+    trigger: pull_request
+    branch: main
+    targets:
+      - fedora-latest
+      - fedora-rawhide
   # - job: propose_downstream
   #   trigger: release
   #   metadata:
   #     dist-git-branch: master
+notifications:
+  pull_request:
+    successful_build: false
