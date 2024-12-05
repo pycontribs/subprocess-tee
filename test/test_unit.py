@@ -4,7 +4,6 @@ import subprocess
 import sys
 
 import pytest
-from _pytest.capture import CaptureFixture
 
 from subprocess_tee import run
 
@@ -44,7 +43,7 @@ def test_run_list() -> None:
     assert result.stderr == old_result.stderr
 
 
-def test_run_echo(capsys: CaptureFixture[str]) -> None:
+def test_run_echo(capsys: pytest.CaptureFixture[str]) -> None:
     """Validate run call with echo dumps command."""
     cmd = [sys.executable, "--version"]
     old_result = subprocess.run(
