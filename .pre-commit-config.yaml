@@ -41,6 +41,10 @@ repos:
         files: \.(yaml|yml)$
         types: [file, yaml]
         entry: yamllint --strict
+  - repo: https://github.com/pappasam/toml-sort
+    rev: v0.24.2
+    hooks:
+      - id: toml-sort-fix
   - repo: https://github.com/pre-commit/mirrors-mypy
     rev: v1.13.0
     hooks:
@@ -52,7 +56,7 @@ repos:
         additional_dependencies:
           - pytest>=6.1.2
           - enrich>=1.2.5
-  - repo: https://github.com/PyCQA/pylint
+  - repo: https://github.com/pycqa/pylint
     rev: v3.3.2
     hooks:
       - id: pylint
