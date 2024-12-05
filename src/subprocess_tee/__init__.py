@@ -1,27 +1,30 @@
 """tee like run implementation."""
 
+from __future__ import annotations
+
 import asyncio
 import os
 import platform
-import subprocess
+import subprocess  # noqa: S404
 import sys
 from asyncio import StreamReader
-from importlib.metadata import PackageNotFoundError, version  # type: ignore
+from importlib.metadata import PackageNotFoundError, version
+from pathlib import Path
 from shlex import join
-from typing import TYPE_CHECKING, Any, Callable, Dict, List, Optional, Union
+from typing import TYPE_CHECKING, Any
 
 try:
     __version__ = version("subprocess-tee")
 except PackageNotFoundError:  # pragma: no branch
     __version__ = "0.1.dev1"
 
-__all__ = ["run", "CompletedProcess", "__version__"]
+__all__ = ["CompletedProcess", "__version__", "run"]
 
 if TYPE_CHECKING:
     CompletedProcess = subprocess.CompletedProcess[Any]  # pylint: disable=E1136
+    from collections.abc import Callable
 else:
     CompletedProcess = subprocess.CompletedProcess
-
 
 STREAM_LIMIT = 2**23  # 8MB instead of default 64kb, override it if you need
 
@@ -35,10 +38,11 @@ async def _read_stream(stream: StreamReader, callback: Callable[..., Any]) -> No
             break
 
 
-async def _stream_subprocess(
-    args: Union[str, List[str]], **kwargs: Any
+async def _stream_subprocess(  # noqa: C901
+    args: str | list[str],
+    **kwargs: Any,
 ) -> CompletedProcess:
-    platform_settings: Dict[str, Any] = {}
+    platform_settings: dict[str, Any] = {}
     if platform.system() == "Windows":
         platform_settings["env"] = os.environ
 
@@ -46,7 +50,7 @@ async def _stream_subprocess(
     tee = kwargs.get("tee", True)
     stdout = kwargs.get("stdout", sys.stdout)
 
-    with open(os.devnull, "w", encoding="UTF-8") as devnull:
+    with Path(os.devnull).open("w", encoding="UTF-8") as devnull:
         if stdout == subprocess.DEVNULL or not tee:
             stdout = devnull
         stderr = kwargs.get("stderr", sys.stderr)
@@ -85,31 +89,31 @@ async def _stream_subprocess(
                 stderr=asyncio.subprocess.PIPE,
                 **platform_settings,
             )
-        out: List[str] = []
-        err: List[str] = []
+        out: list[str] = []
+        err: list[str] = []
 
-        def tee_func(line: bytes, sink: List[str], pipe: Optional[Any]) -> None:
+        def tee_func(line: bytes, sink: list[str], pipe: Any | None) -> None:
             line_str = line.decode("utf-8").rstrip()
             sink.append(line_str)
             if not kwargs.get("quiet", False):
                 if pipe and hasattr(pipe, "write"):
                     print(line_str, file=pipe)
                 else:
-                    print(line_str)
+                    print(line_str)  # noqa: T201
 
         loop = asyncio.get_running_loop()
         tasks = []
         if process.stdout:
             tasks.append(
                 loop.create_task(
-                    _read_stream(process.stdout, lambda x: tee_func(x, out, stdout))
-                )
+                    _read_stream(process.stdout, lambda x: tee_func(x, out, stdout)),
+                ),
             )
         if process.stderr:
             tasks.append(
                 loop.create_task(
-                    _read_stream(process.stderr, lambda x: tee_func(x, err, stderr))
-                )
+                    _read_stream(process.stderr, lambda x: tee_func(x, err, stderr)),
+                ),
             )
 
         await asyncio.wait(set(tasks))
@@ -132,25 +136,29 @@ async def _stream_subprocess(
         )
 
 
-def run(args: Union[str, List[str]], **kwargs: Any) -> CompletedProcess:
+def run(args: str | list[str], **kwargs: Any) -> CompletedProcess:
     """Drop-in replacement for subprocess.run that behaves like tee.
 
     Extra arguments added by our version:
     echo: False - Prints command before executing it.
     quiet: False - Avoid printing output
+
+    Returns:
+        CompletedProcess: ...
+
+    Raises:
+        CalledProcessError: ...
+
     """
-    if isinstance(args, str):
-        cmd = args
-    else:
-        # run was called with a list instead of a single item but asyncio
-        # create_subprocess_shell requires command as a single string, so
-        # we need to convert it to string
-        cmd = join(args)
+    # run was called with a list instead of a single item but asyncio
+    # create_subprocess_shell requires command as a single string, so
+    # we need to convert it to string
+    cmd = args if isinstance(args, str) else join(args)
 
     check = kwargs.get("check", False)
 
     if kwargs.get("echo", False):
-        print(f"COMMAND: {cmd}")
+        print(f"COMMAND: {cmd}")  # noqa: T201
 
     result = asyncio.run(_stream_subprocess(args, **kwargs))
     # we restore original args to mimic subproces.run()
@@ -158,6 +166,9 @@ def run(args: Union[str, List[str]], **kwargs: Any) -> CompletedProcess:
 
     if check and result.returncode != 0:
         raise subprocess.CalledProcessError(
-            result.returncode, args, output=result.stdout, stderr=result.stderr
+            result.returncode,
+            args,
+            output=result.stdout,
+            stderr=result.stderr,
         )
     return result

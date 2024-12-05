@@ -73,9 +73,8 @@ documentation = "https://subprocess-tee.readthedocs.io"
 homepage = "https://github.com/pycontribs/subprocess-tee"
 repository = "https://github.com/pycontribs/subprocess-tee"
 
-[tool.isort]
-known_first_party = "subprocess_tee"
-profile = "black"
+[tool.black]
+target-version = ["py39"]
 
 [tool.mypy]
 color_output = true
@@ -88,6 +87,45 @@ python_version = "3.9"
 warn_redundant_casts = true
 warn_return_any = true
 warn_unused_configs = true
+
+[tool.pyright]
+pythonVersion = "3.9"
+
+[tool.ruff]
+cache-dir = "./.cache/.ruff"
+fix = true
+# Same as Black.
+line-length = 88
+preview = true
+target-version = "py39"
+
+[tool.ruff.lint]
+ignore = [
+  "COM812", # conflicts with ISC001 on format
+  "CPY001", # missing-copyright-notice
+  "D203", # incompatible with D211
+  "D213", # incompatible with D212
+  "E501", # we use black
+  "ERA001", # auto-removal of commented out code affects development and vscode integration
+  "INP001", # "is part of an implicit namespace package", all false positives
+  "ISC001", # conflicts with COM812 on format
+  "PLW2901", # PLW2901: Redefined loop variable
+  "RET504", # Unnecessary variable assignment before `return` statement
+  # temporary disabled until we fix them:
+  "ANN",
+  "PLR",
+  "ASYNC230"
+]
+select = ["ALL"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["src"]
+
+[tool.ruff.lint.per-file-ignores]
+"test/*.py" = ["S", "T201"]
+
+[tool.ruff.lint.pydocstyle]
+convention = "google"
 
 [tool.setuptools_scm]
 local_scheme = "no-local-version"
