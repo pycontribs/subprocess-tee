@@ -1,9 +1,29 @@
 ---
-exclude: |
-    (?x)(
-        ^docs/conf.py$
-    )
+ci:
+  # format compatible with commitlint
+  autoupdate_commit_msg: "chore: pre-commit autoupdate"
+  autoupdate_schedule: monthly
+  autofix_commit_msg: "chore: auto fixes from pre-commit.com hooks"
+  skip:
+    # https://github.com/pre-commit-ci/issues/issues/55
+    - pip-compile
+    - pyright
 repos:
+  - repo: meta
+    hooks:
+      - id: check-useless-excludes
+  - repo: https://github.com/rbubley/mirrors-prettier
+    # keep it before yamllint
+    rev: v3.4.2
+    hooks:
+      - id: prettier
+  - repo: https://github.com/streetsidesoftware/cspell-cli
+    rev: v8.16.0
+    hooks:
+      - id: cspell
+        # entry: codespell --relative
+        args: [--relative, --no-progress, --no-summary]
+        name: Spell check with cspell
   - repo: https://github.com/pre-commit/pre-commit-hooks.git
     rev: v5.0.0
     hooks:
@@ -15,7 +35,13 @@ repos:
       - id: check-merge-conflict
       - id: debug-statements
         language_version: python3
+  - repo: https://github.com/codespell-project/codespell
+    rev: v2.3.0
+    hooks:
+      - id: codespell
 
+        additional_dependencies:
+          - tomli
   - repo: https://github.com/adrienverge/yamllint.git
     rev: v1.35.1
     hooks:
@@ -47,8 +73,6 @@ repos:
       - id: mypy
         # empty args needed in order to match mypy cli behavior
         args: []
-        entry: mypy src/
-        pass_filenames: false
         additional_dependencies:
           - pytest>=6.1.2
           - enrich>=1.2.5
@@ -68,3 +92,40 @@ repos:
           - enrich>=1.2.5
           - typing
           - typing-extensions
+  - repo: https://github.com/jendrikseipp/vulture
+    rev: v2.13
+    hooks:
+      - id: vulture
+  - # keep at bottom as these are slower
+    repo: local
+    hooks:
+      - id: deps
+        name: Upgrade constraints files and requirements
+        files: ^(pyproject\.toml|requirements\.txt)$
+        language: python
+        language_version: "3.10" # minimal we support officially
+        entry: python3 -m uv pip compile -q --python-version=3.9 --all-extras --output-file=.config/constraints.txt pyproject.toml --upgrade
+        pass_filenames: false
+        stages:
+          - manual
+        additional_dependencies:
+          - uv>=0.4.3
+      - id: pip-compile
+        name: Check constraints files and requirements
+        files: ^(pyproject\.toml|requirements\.txt)$
+        language: python
+        entry: python3 -m uv pip compile -q --python-version=3.9 --all-extras --output-file=.config/constraints.txt pyproject.toml
+        pass_filenames: false
+        additional_dependencies:
+          - uv>=0.4.3
+      - id: lock
+        name: Update requirements-lock.txt
+        alias: lock
+        always_run: true
+        entry: python3 -m uv pip compile -q --python-version=3.9 --upgrade --output-file=.config/requirements-lock.txt pyproject.toml --strip-extras
+        files: ^.config\/.*requirements.*$
+        language: python
+        pass_filenames: false
+        stages: [manual]
+        additional_dependencies:
+          - uv>=0.4.3

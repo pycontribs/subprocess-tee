@@ -1,9 +1,10 @@
+# cspell: ignore tomlsort
+
 [build-system]
 build-backend = "setuptools.build_meta"
 requires = [
-  # Needed for PEP 621 support
-  "setuptools >= 61.0",
-  "setuptools_scm[toml] >= 7.0.0"
+  "setuptools >= 65.3.0", # required by pyproject+setuptools_scm integration and editable installs
+  "setuptools_scm[toml] >= 7.0.5" # required for "no-local-version" scheme
 ]
 
 [project]
@@ -32,7 +33,7 @@ classifiers = [
   "Topic :: Utilities"
 ]
 description = "subprocess-tee"
-dynamic = ["version"]
+dynamic = ["version", "dependencies", "optional-dependencies"]
 keywords = ["subprocess", "asyncio"]
 license = {text = "MIT"}
 maintainers = [
@@ -43,30 +44,6 @@ readme = "README.md"
 # https://peps.python.org/pep-0621/#readme
 requires-python = ">=3.9"
 
-[project.optional-dependencies]
-docs = [
-  "argparse-manpage",
-  "cairosvg",
-  "markdown-include",
-  "mkdocs",
-  "mkdocs-git-revision-date-localized-plugin",
-  "mkdocs-material",
-  "mkdocs-material-extensions",
-  "mkdocstrings",
-  "mkdocstrings-python",
-  "pillow",
-  "pymdown-extensions"
-]
-test = [
-  "enrich>=1.2.6",
-  "molecule>=3.4.0", # ansible is needed but no direct imports are made
-  "pytest-cov>=2.12.1",
-  "pytest-instafail",
-  "pytest-plus>=0.2",
-  "pytest-xdist>=2.3.0",
-  "pytest>=6.2.5"
-]
-
 [project.urls]
 changelog = "https://github.com/pycontribs/subprocess-tee/releases"
 documentation = "https://subprocess-tee.readthedocs.io"
@@ -76,17 +53,72 @@ repository = "https://github.com/pycontribs/subprocess-tee"
 [tool.black]
 target-version = ["py39"]
 
+[tool.codespell]
+skip = ".tox,.mypy_cache,build,.git,.eggs,pip-wheel-metadata"
+
+[tool.coverage.report]
+exclude_also = ["pragma: no cover", "if TYPE_CHECKING:"]
+# Increase it just so it would pass on any single-python run
+fail_under = 92
+show_missing = true
+skip_covered = true
+skip_empty = true
+
+[tool.coverage.run]
+parallel = true
+
 [tool.mypy]
+check_untyped_defs = true
 color_output = true
 disallow_any_generics = true
 disallow_any_unimported = true
 disallow_untyped_calls = true
 disallow_untyped_defs = true
 error_summary = true
+incremental = false
+no_implicit_optional = true
 python_version = "3.9"
+show_error_code_links = true
+show_error_codes = true
+strict = true
 warn_redundant_casts = true
 warn_return_any = true
 warn_unused_configs = true
+
+[tool.pylint.IMPORTS]
+preferred-modules = ["py:pathlib", "unittest:pytest"]
+
+[tool.pylint.MASTER]
+# Ignore as being generated:
+ignore-paths = "^(src/.*/_version|.config/).*$"
+
+[tool.pylint."MESSAGES CONTROL"]
+disable = [
+  # Disabled on purpose:
+  "line-too-long", # covered by black
+  "protected-access", # covered by ruff SLF001
+  "too-many-branches", # covered by ruff C901
+  "wrong-import-order", # covered by ruff
+  # TODO(ssbarnea): remove temporary skips adding during initial adoption:
+  "duplicate-code",
+  # unable to disable it inside tests
+  # https://github.com/PyCQA/pylint/issues/850
+  "cyclic-import",
+  # https://github.com/PyCQA/pylint/issues/8453
+  "preferred-module"
+]
+enable = [
+  "useless-suppression" # Identify unneeded pylint disable statements
+]
+# increase from default is 50 which is too aggressive
+max-statements = 60
+
+[tool.pylint.REPORTING]
+output-format = "colorized"
+
+[tool.pylint.SUMMARY]
+# We don't need the score spamming console, as we either pass or fail
+score = "n"
 
 [tool.pyright]
 pythonVersion = "3.9"
@@ -127,10 +159,42 @@ known-first-party = ["src"]
 [tool.ruff.lint.pydocstyle]
 convention = "google"
 
+[tool.setuptools.dynamic]
+dependencies = {file = [".config/requirements.in"]}
+optional-dependencies.docs = {file = [".config/requirements-docs.in"]}
+optional-dependencies.test = {file = [".config/requirements-test.in"]}
+
 [tool.setuptools_scm]
+# To prevent accidental pick of mobile version tags such 'v6'
+git_describe_command = [
+  "git",
+  "describe",
+  "--dirty",
+  "--long",
+  "--tags",
+  "--match",
+  "v*.*"
+]
 local_scheme = "no-local-version"
+tag_regex = "^(?P<prefix>v)?(?P<version>[0-9.]+)(?P<suffix>.*)?$"
+write_to = "src/subprocess_tee/_version.py"
 
 [tool.tomlsort]
 in_place = true
 sort_inline_tables = true
 sort_table_keys = true
+
+[tool.uv.pip]
+annotation-style = "line"
+custom-compile-command = "tox run deps"
+no-emit-package = ["ansible-core", "pip", "resolvelib", "typing_extensions", "uv"]
+
+[tool.vulture]
+exclude = [
+  ".eggs",
+  ".tox",
+  "build",
+  "venv",
+  "src/subprocess_tee/_version.py"
+]
+paths = ["src", "test"]
