@@ -18,7 +18,7 @@ repos:
     hooks:
       - id: prettier
   - repo: https://github.com/streetsidesoftware/cspell-cli
-    rev: v8.16.0
+    rev: v8.16.1
     hooks:
       - id: cspell
         # entry: codespell --relative
@@ -93,7 +93,7 @@ repos:
           - typing
           - typing-extensions
   - repo: https://github.com/jendrikseipp/vulture
-    rev: v2.13
+    rev: v2.14
     hooks:
       - id: vulture
   - # keep at bottom as these are slower

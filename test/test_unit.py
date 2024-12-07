@@ -1,11 +1,13 @@
 """Unit tests."""
 
+import re
 import subprocess
 import sys
 from pathlib import Path
 
 import pytest
 
+import subprocess_tee
 from subprocess_tee import run
 
 
@@ -140,8 +142,33 @@ def test_run_compat() -> None:
     assert ours.args == original.args
 
 
+def test_run_compat2() -> None:
+    """Assure compatibility with subprocess.run()."""
+    cmd: tuple[str, int] = ("true", -1)
+    ours = run(*cmd)
+    original = subprocess.run(
+        *cmd,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    assert ours.returncode == original.returncode
+    assert ours.stdout == original.stdout
+    assert ours.stderr == original.stderr
+    assert ours.args == original.args
+
+
 def test_run_waits_for_completion(tmp_path: Path) -> None:
     """run() should always wait for the process to complete."""
     tmpfile = tmp_path / "output.txt"
     run(f"sleep 0.1 && echo 42 > {tmpfile!s}")
     assert tmpfile.read_text() == "42\n"
+
+
+def test_run_exc_no_args() -> None:
+    """Checks that call without arguments fails the same way as subprocess.run()."""
+    expected = re.compile(r".*__init__\(\) missing 1 required positional argument: 'args'")
+    with pytest.raises(TypeError, match=expected):
+        subprocess.run(check=False)  # type: ignore[call-overload]
+    with pytest.raises(TypeError, match=expected):
+        subprocess_tee.run()
