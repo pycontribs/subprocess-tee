@@ -1,3 +1,4 @@
+# spell-checker: disable
 site_name: subprocess-tee
 site_url: https://subprocess-tee.readthedocs.io/
 repo_url: https://github.com/pycontribs/subprocess-tee
@@ -37,4 +38,4 @@ markdown_extensions:
       repo: pymdown-extensions
       normalize_issue_symbols: true
   - markdown_include.include:
-        base_path: docs
+      base_path: docs

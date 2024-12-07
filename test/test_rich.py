@@ -31,6 +31,7 @@ def test_rich_console_ex_ansi() -> None:
     print()
     console = Console(force_terminal=True, record=True, redirect=True)
     console.print("[green]this from Console.print()[/green]", style="red")
+    # cspell:disable-next-line
     proc = run(r'echo -e "\033[31mred\033[0m"')
     assert proc.returncode == 0
     assert "red" in proc.stdout

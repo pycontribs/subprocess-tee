@@ -2,16 +2,21 @@
 version: 2
 updates:
   - package-ecosystem: pip
-    directory: /
+    directory: /.config/
     schedule:
-      interval: daily
+      day: sunday
+      interval: weekly
     labels:
+      - dependabot-deps-updates
       - skip-changelog
-    versioning-strategy: lockfile-only
-    open-pull-requests-limit: 0 # neutered
+    groups:
+      dependencies:
+        patterns:
+          - "*"
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
       interval: daily
     labels:
+      - "dependencies"
       - "skip-changelog"

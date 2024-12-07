@@ -1,5 +1,5 @@
 ---
-# spell-checker:ignore packit specfile copr epel
+# spell-checker:ignore packit specfile copr epel srpm
 # https://packit.dev/docs/configuration/
 # TODO(ssbarnea): Is there a way to template the package name in order to make
 # it easier to sync this config between projects?

@@ -1,0 +1,19 @@
+---
+dictionaryDefinitions:
+  - name: words
+    path: .config/dictionary.txt
+    addWords: true
+dictionaries:
+  # Use `cspell-cli trace word` to check where a work is defined
+  - en_US
+  - bash
+  - words
+  - python
+enabled: true
+ignorePaths:
+  - cspell.config.yaml
+  # The requirements file
+  - .config/constraints.txt
+  - .config/requirements*.in
+  # Other
+  - "*.svg"

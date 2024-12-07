@@ -119,7 +119,7 @@ async def _stream_subprocess(  # noqa: C901
         await asyncio.wait(set(tasks))
 
         # We need to be sure we keep the stdout/stderr output identical with
-        # the ones procued by subprocess.run(), at least when in text mode.
+        # the ones produced by subprocess.run(), at least when in text mode.
         check = kwargs.get("check", False)
         stdout = None if check else ""
         stderr = None if check else ""
@@ -161,7 +161,7 @@ def run(args: str | list[str], **kwargs: Any) -> CompletedProcess:
         print(f"COMMAND: {cmd}")  # noqa: T201
 
     result = asyncio.run(_stream_subprocess(args, **kwargs))
-    # we restore original args to mimic subproces.run()
+    # we restore original args to mimic subprocess.run()
     result.args = args
 
     if check and result.returncode != 0:

@@ -1,7 +1,8 @@
-"""Unittests."""
+"""Unit tests."""
 
 import subprocess
 import sys
+from pathlib import Path
 
 import pytest
 
@@ -101,7 +102,7 @@ def test_run_cwd() -> None:
 
 
 def test_run_with_check_raise() -> None:
-    """Asure compatibility with subprocess.run when using check (return 1)."""
+    """Assure compatibility with subprocess.run when using check (return 1)."""
     with pytest.raises(subprocess.CalledProcessError) as ours:
         run("false", check=True)
     with pytest.raises(subprocess.CalledProcessError) as original:
@@ -114,7 +115,7 @@ def test_run_with_check_raise() -> None:
 
 
 def test_run_with_check_pass() -> None:
-    """Asure compatibility with subprocess.run when using check (return 0)."""
+    """Assure compatibility with subprocess.run when using check (return 0)."""
     ours = run("true", check=True)
     original = subprocess.run("true", check=True, text=True)
     assert ours.returncode == original.returncode
@@ -124,7 +125,7 @@ def test_run_with_check_pass() -> None:
 
 
 def test_run_compat() -> None:
-    """Assure compatiblity with subprocess.run()."""
+    """Assure compatibility with subprocess.run()."""
     cmd = ["seq", "10"]
     ours = run(cmd)
     original = subprocess.run(
@@ -139,7 +140,7 @@ def test_run_compat() -> None:
     assert ours.args == original.args
 
 
-def test_run_waits_for_completion(tmp_path):
+def test_run_waits_for_completion(tmp_path: Path) -> None:
     """run() should always wait for the process to complete."""
     tmpfile = tmp_path / "output.txt"
     run(f"sleep 0.1 && echo 42 > {tmpfile!s}")
