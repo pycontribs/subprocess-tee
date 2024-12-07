@@ -32,7 +32,7 @@ classifiers = [
   "Topic :: System :: Systems Administration",
   "Topic :: Utilities"
 ]
-description = "subprocess-tee"
+description = "subprocess-tee extends standard library subprocess.run to allow display and capture of executed command output."
 dynamic = ["version", "dependencies", "optional-dependencies"]
 keywords = ["subprocess", "asyncio"]
 license = {text = "MIT"}
