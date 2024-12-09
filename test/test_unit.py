@@ -167,7 +167,9 @@ def test_run_waits_for_completion(tmp_path: Path) -> None:
 
 def test_run_exc_no_args() -> None:
     """Checks that call without arguments fails the same way as subprocess.run()."""
-    expected = re.compile(r".*__init__\(\) missing 1 required positional argument: 'args'")
+    expected = re.compile(
+        r".*__init__\(\) missing 1 required positional argument: 'args'"
+    )
     with pytest.raises(TypeError, match=expected):
         subprocess.run(check=False)  # type: ignore[call-overload]
     with pytest.raises(TypeError, match=expected):
