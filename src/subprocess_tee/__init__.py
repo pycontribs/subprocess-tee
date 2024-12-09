@@ -1,8 +1,11 @@
 """tee like run implementation."""
 
+# cspell: ignore popenargs preexec startupinfo creationflags pipesize
+
 from __future__ import annotations
 
 import asyncio
+import logging
 import os
 import platform
 import subprocess  # noqa: S404
@@ -19,9 +22,12 @@ except PackageNotFoundError:  # pragma: no branch
     __version__ = "0.1.dev1"
 
 __all__ = ["CompletedProcess", "__version__", "run"]
+_logger = logging.getLogger(__name__)
 
 if TYPE_CHECKING:
-    CompletedProcess = subprocess.CompletedProcess[Any]  # pylint: disable=E1136
+    from subprocess_tee._types import SequenceNotStr
+
+    CompletedProcess = subprocess.CompletedProcess[Any]
     from collections.abc import Callable
 else:
     CompletedProcess = subprocess.CompletedProcess
@@ -39,7 +45,7 @@ async def _read_stream(stream: StreamReader, callback: Callable[..., Any]) -> No
 
 
 async def _stream_subprocess(  # noqa: C901
-    args: str | list[str],
+    args: str | tuple[str, ...],
     **kwargs: Any,
 ) -> CompletedProcess:
     platform_settings: dict[str, Any] = {}
@@ -136,7 +142,20 @@ async def _stream_subprocess(  # noqa: C901
         )
 
 
-def run(args: str | list[str], **kwargs: Any) -> CompletedProcess:
+# signature is based on stdlib
+# subprocess.run()
+# pylint: disable=too-many-arguments
+# ruff: ignore=FBT001,ARG001
+def run(
+    args: str | SequenceNotStr[str] | None = None,
+    bufsize: int = -1,
+    input: bytes | str | None = None,  # noqa: A002
+    *,
+    capture_output: bool = False,
+    timeout: int | None = None,
+    check: bool = False,
+    **kwargs: Any,
+) -> CompletedProcess:
     """Drop-in replacement for subprocess.run that behaves like tee.
 
     Extra arguments added by our version:
@@ -148,26 +167,36 @@ def run(args: str | list[str], **kwargs: Any) -> CompletedProcess:
 
     Raises:
         CalledProcessError: ...
+        TypeError: ...
 
     """
-    # run was called with a list instead of a single item but asyncio
-    # create_subprocess_shell requires command as a single string, so
-    # we need to convert it to string
+    if args is None:
+        msg = "Popen.__init__() missing 1 required positional argument: 'args'"
+        raise TypeError(msg)
+
     cmd = args if isinstance(args, str) else join(args)
+    # bufsize=-1, executable=None, stdin=None, stdout=None, stderr=None, preexec_fn=None, close_fds=True, shell=False, cwd=None, env=None, universal_newlines=None, startupinfo=None, creationflags=0, restore_signals=True, start_new_session=False, pass_fds=(), *, group=None, extra_groups=None, user=None, umask=-1, encoding=None, errors=None, text=None, pipesize=-1, process_group=None
+    if bufsize != -1:
+        msg = "Ignored bufsize argument as it is not supported yet by __package__"
+        _logger.warning(msg)
+    kwargs["check"] = check
+    kwargs["input"] = input
+    kwargs["timeout"] = timeout
+    kwargs["capture_output"] = capture_output
 
     check = kwargs.get("check", False)
 
     if kwargs.get("echo", False):
         print(f"COMMAND: {cmd}")  # noqa: T201
 
-    result = asyncio.run(_stream_subprocess(args, **kwargs))
+    result = asyncio.run(_stream_subprocess(cmd, **kwargs))
     # we restore original args to mimic subprocess.run()
     result.args = args
 
     if check and result.returncode != 0:
         raise subprocess.CalledProcessError(
             result.returncode,
-            args,
+            cmd,  # pyright: ignore[xxx]
             output=result.stdout,
             stderr=result.stderr,
         )

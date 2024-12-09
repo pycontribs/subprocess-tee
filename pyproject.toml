@@ -97,7 +97,9 @@ disable = [
   # Disabled on purpose:
   "line-too-long", # covered by black
   "protected-access", # covered by ruff SLF001
+  "redefined-builtin", # covered by ruff
   "too-many-branches", # covered by ruff C901
+  "unused-argument", # covered vby ruff
   "wrong-import-order", # covered by ruff
   # TODO(ssbarnea): remove temporary skips adding during initial adoption:
   "duplicate-code",
@@ -195,6 +197,7 @@ exclude = [
   ".tox",
   "build",
   "venv",
-  "src/subprocess_tee/_version.py"
+  "src/subprocess_tee/_version.py",
+  "src/subprocess_tee/_types.py"
 ]
 paths = ["src", "test"]
