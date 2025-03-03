@@ -101,7 +101,7 @@ async def _stream_subprocess(  # noqa: C901
         def tee_func(line: bytes, sink: list[str], pipe: Any | None) -> None:
             line_str = line.decode("utf-8").rstrip()
             sink.append(line_str)
-            if not kwargs.get("quiet", False):
+            if not kwargs.get("quiet"):
                 if pipe and hasattr(pipe, "write"):
                     print(line_str, file=pipe)
                 else:
@@ -186,7 +186,7 @@ def run(
 
     check = kwargs.get("check", False)
 
-    if kwargs.get("echo", False):
+    if kwargs.get("echo"):
         print(f"COMMAND: {cmd}")  # noqa: T201
 
     result = asyncio.run(_stream_subprocess(cmd, **kwargs))
