@@ -43,7 +43,7 @@ repos:
         additional_dependencies:
           - tomli
   - repo: https://github.com/adrienverge/yamllint.git
-    rev: v1.35.1
+    rev: v1.37.0
     hooks:
       - id: yamllint
         files: \.(yaml|yml)$
@@ -53,8 +53,15 @@ repos:
     rev: v0.24.2
     hooks:
       - id: toml-sort-fix
+        alias: toml
+
+  - repo: https://github.com/tox-dev/tox-ini-fmt
+    rev: 1.5.0
+    hooks:
+      - id: tox-ini-fmt
+
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.9.9
+    rev: v0.11.4
     hooks:
       - id: ruff
         args:
@@ -77,14 +84,14 @@ repos:
           - pytest>=6.1.2
           - enrich>=1.2.5
   - repo: https://github.com/RobertCraigie/pyright-python
-    rev: v1.1.396
+    rev: v1.1.398
     hooks:
       - id: pyright
         additional_dependencies:
           - pytest>=6.1.2
           - enrich>=1.2.5
   - repo: https://github.com/pycqa/pylint
-    rev: v3.3.4
+    rev: v3.3.6
     hooks:
       - id: pylint
         additional_dependencies:
