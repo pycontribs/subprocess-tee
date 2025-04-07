@@ -128,3 +128,4 @@ dmypy.json
 .pyre/
 *.rpm
 src/subprocess_tee/_version.py
+_readthedocs
