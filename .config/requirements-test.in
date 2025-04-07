@@ -1,7 +1,15 @@
+coverage-enable-subprocess # see https://github.com/nedbat/coveragepy/issues/1341#issuecomment-1228942657
+coverage[toml] >= 6.4.4
 enrich>=1.2.6
+ipdb
+ipython
 molecule>=3.4.0  # ansible is needed but no direct imports are made
-pytest-cov>=2.12.1
-pytest-instafail
-pytest-plus>=0.2
-pytest-xdist>=2.3.0
+pytest >= 7.2.2
+pytest-instafail >= 0.5.0 # only for local development, via PYTEST_ADDOPTS=-edit
+pytest-plus >= 0.6 # for PYTEST_REQPASS
+pytest-sugar  # shows failures immediately, even with xdist
+pytest-xdist[psutil,setproctitle] >= 2.3.0
 pytest>=6.2.5
+tox-extra>=2.1
+tox-uv>=1.25
+tox>=4.24.2
