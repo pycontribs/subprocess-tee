@@ -1,9 +1,11 @@
+addopts
 autoupdate
 capsys
 codespell
 commitlint
 devel
 dists
+instafail
 mkdocstrings
 nosetests
 packit
@@ -17,6 +19,8 @@ PYTHONPYCACHEPREFIX
 PYTHONUNBUFFERED
 REQPASS
 Sbarnea
+showlocals
 Sorin
 ssbarnea
+testpaths
 TOXENV
