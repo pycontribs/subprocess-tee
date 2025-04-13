@@ -37,7 +37,7 @@ gitpython==3.1.44         # via mkdocs-git-revision-date-localized-plugin, tox-e
 griffe==1.7.2             # via mkdocstrings-python
 idna==3.10                # via requests
 importlib-metadata==8.6.1  # via markdown, mkdocs, mkdocs-get-deps, mkdocstrings
-importlib-resources==5.0.7  # via ansible-core
+importlib-resources==6.5.2  # via ansible-core
 iniconfig==2.1.0          # via pytest
 ipdb==0.13.13             # via subprocess-tee (pyproject.toml)
 ipython==8.18.1           # via ipdb, subprocess-tee (pyproject.toml)
@@ -45,7 +45,7 @@ jedi==0.19.2              # via ipython
 jinja2==3.1.6             # via ansible-core, mkdocs, mkdocs-material, mkdocstrings, molecule
 jsonschema==4.23.0        # via ansible-compat, molecule
 jsonschema-specifications==2024.10.1  # via jsonschema
-markdown==3.7             # via markdown-include, mkdocs, mkdocs-autorefs, mkdocs-material, mkdocstrings, pymdown-extensions
+markdown==3.8             # via markdown-include, mkdocs, mkdocs-autorefs, mkdocs-material, mkdocstrings, pymdown-extensions
 markdown-include==0.8.1   # via subprocess-tee (pyproject.toml)
 markdown-it-py==3.0.0     # via rich
 markupsafe==3.0.2         # via jinja2, mkdocs, mkdocs-autorefs, mkdocstrings
@@ -68,7 +68,7 @@ parso==0.8.4              # via jedi
 pathspec==0.12.1          # via mkdocs
 pbr==6.1.1                # via bindep
 pexpect==4.9.0            # via ipython
-pillow==11.1.0            # via cairosvg, subprocess-tee (pyproject.toml)
+pillow==11.2.1            # via cairosvg, subprocess-tee (pyproject.toml)
 platformdirs==4.3.7       # via mkdocs-get-deps, tox, virtualenv
 pluggy==1.5.0             # via molecule, pytest, tox
 prompt-toolkit==3.0.50    # via ipython
@@ -100,7 +100,7 @@ termcolor==3.0.1          # via pytest-sugar
 tinycss2==1.4.0           # via cairosvg, cssselect2
 tomli==2.2.1              # via argparse-manpage, coverage, ipdb, pyproject-api, pytest, tox
 traitlets==5.14.3         # via ipython, matplotlib-inline
-urllib3==2.3.0            # via requests
+urllib3==2.4.0            # via requests
 watchdog==6.0.0           # via mkdocs
 wcmatch==10.0             # via molecule
 wcwidth==0.2.13           # via prompt-toolkit
