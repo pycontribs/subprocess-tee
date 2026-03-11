@@ -46,6 +46,22 @@ def test_run_list() -> None:
     assert result.stderr == old_result.stderr
 
 
+def test_run_executable() -> None:
+    """Validate run call with a command made of list of strings and an executable."""
+    cmd = ["not a real executable", "-c", "import sys; print(sys.argv[0])"]
+    old_result = subprocess.run(
+        cmd,
+        executable=Path(sys.executable),
+        text=True,
+        capture_output=True,
+        check=False,
+    )
+    result = run(cmd, executable=Path(sys.executable))
+    assert result.returncode == old_result.returncode
+    assert result.stdout == old_result.stdout
+    assert result.stderr == old_result.stderr
+
+
 def test_run_echo(capsys: pytest.CaptureFixture[str]) -> None:
     """Validate run call with echo dumps command."""
     cmd = [sys.executable, "--version"]
@@ -174,3 +190,14 @@ def test_run_exc_no_args() -> None:
         subprocess.run(check=False)  # type: ignore[call-overload]
     with pytest.raises(TypeError, match=expected):
         subprocess_tee.run()
+
+
+def test_run_exc_extra_args() -> None:
+    """Checks that call with unrecognized arguments fails the same way as subprocess.run()."""
+    expected = re.compile(
+        r".*__init__\(\) got an unexpected keyword argument 'i_am_not_a_real_argument'"
+    )
+    with pytest.raises(TypeError, match=expected):
+        subprocess.run(["true"], i_am_not_a_real_argument=False, check=False)  # type: ignore[call-overload]
+    with pytest.raises(TypeError, match=expected):
+        subprocess_tee.run(["true"], i_am_not_a_real_argument=False, nor_am_i=True)

@@ -5,6 +5,7 @@ codespell
 commitlint
 devel
 dists
+fspath
 instafail
 mkdocstrings
 nosetests
