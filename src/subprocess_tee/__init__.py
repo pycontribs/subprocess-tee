@@ -11,10 +11,11 @@ import platform
 import subprocess  # noqa: S404
 import sys
 from asyncio import StreamReader
+from collections.abc import Sequence
 from importlib.metadata import PackageNotFoundError, version
 from pathlib import Path
 from shlex import join
-from typing import TYPE_CHECKING, Any, Sequence
+from typing import TYPE_CHECKING, Any
 
 try:
     __version__ = version("subprocess-tee")
@@ -26,6 +27,7 @@ _logger = logging.getLogger(__name__)
 
 if TYPE_CHECKING:
     from collections.abc import Callable
+
     from subprocess_tee._types import StrOrBytesPath
 CompletedProcess = subprocess.CompletedProcess
 
@@ -41,7 +43,7 @@ async def _read_stream(stream: StreamReader, callback: Callable[..., Any]) -> No
             break
 
 
-async def _stream_subprocess(  # noqa: C901, R0913, R0914
+async def _stream_subprocess(  # noqa: C901
     args: StrOrBytesPath | Sequence[StrOrBytesPath],
     *,
     stdin=None,
@@ -201,7 +203,11 @@ def run(
     check = kwargs.get("check", False)
 
     if kwargs.pop("echo", False):
-        cmd = args if isinstance(args, (str, bytes, os.PathLike)) else join(str(s) for s in args)
+        cmd = (
+            args
+            if isinstance(args, (str, bytes, os.PathLike))
+            else join(str(s) for s in args)
+        )
         print(f"COMMAND: {cmd}")  # noqa: T201
 
     result = asyncio.run(_stream_subprocess(args, **kwargs))
