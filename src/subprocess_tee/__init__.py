@@ -11,7 +11,6 @@ import platform
 import subprocess  # noqa: S404
 import sys
 from asyncio import StreamReader
-from collections.abc import Sequence
 from importlib.metadata import PackageNotFoundError, version
 from pathlib import Path
 from shlex import join
@@ -26,7 +25,7 @@ __all__ = ["CompletedProcess", "__version__", "run"]
 _logger = logging.getLogger(__name__)
 
 if TYPE_CHECKING:
-    from collections.abc import Callable
+    from collections.abc import Callable, Sequence
 
     from subprocess_tee._types import StrOrBytesPath
 CompletedProcess = subprocess.CompletedProcess
@@ -43,6 +42,7 @@ async def _read_stream(stream: StreamReader, callback: Callable[..., Any]) -> No
             break
 
 
+# pylint: disable=too-many-arguments, too-many-locals
 async def _stream_subprocess(  # noqa: C901
     args: StrOrBytesPath | Sequence[StrOrBytesPath],
     *,
