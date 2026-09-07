@@ -8,7 +8,7 @@ import asyncio
 import logging
 import os
 import platform
-import subprocess  # noqa: S404
+import subprocess  # ruff: ignore[suspicious-subprocess-import]
 import sys
 from asyncio import StreamReader
 from importlib.metadata import PackageNotFoundError, version
@@ -44,7 +44,7 @@ async def _read_stream(stream: StreamReader, callback: Callable[..., Any]) -> No
             break
 
 
-async def _stream_subprocess(  # noqa: C901
+async def _stream_subprocess(  # ruff: ignore[complex-structure]
     args: str | tuple[str, ...],
     **kwargs: Any,
 ) -> CompletedProcess:
@@ -105,7 +105,7 @@ async def _stream_subprocess(  # noqa: C901
                 if pipe and hasattr(pipe, "write"):
                     print(line_str, file=pipe)
                 else:
-                    print(line_str)  # noqa: T201
+                    print(line_str)  # ruff: ignore[print]
 
         loop = asyncio.get_running_loop()
         tasks = []
@@ -149,7 +149,7 @@ async def _stream_subprocess(  # noqa: C901
 def run(
     args: str | SequenceNotStr[str] | None = None,
     bufsize: int = -1,
-    input: bytes | str | None = None,  # noqa: A002
+    input: bytes | str | None = None,  # ruff: ignore[builtin-argument-shadowing]
     *,
     capture_output: bool = False,
     timeout: int | None = None,
@@ -187,7 +187,7 @@ def run(
     check = kwargs.get("check", False)
 
     if kwargs.get("echo"):
-        print(f"COMMAND: {cmd}")  # noqa: T201
+        print(f"COMMAND: {cmd}")  # ruff: ignore[print]
 
     result = asyncio.run(_stream_subprocess(cmd, **kwargs))
     # we restore original args to mimic subprocess.run()
