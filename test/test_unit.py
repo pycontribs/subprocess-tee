@@ -174,3 +174,46 @@ def test_run_exc_no_args() -> None:
         subprocess.run(check=False)  # type: ignore[call-overload]
     with pytest.raises(TypeError, match=expected):
         subprocess_tee.run()
+
+
+@pytest.mark.parametrize(
+    ("quiet", "tee"), [(False, True), (True, True), (False, False)]
+)
+def test_run_invalid_utf8(
+    capsys: pytest.CaptureFixture[str], *, quiet: bool, tee: bool
+) -> None:
+    """Keep reading both streams after replacing undecodable output bytes."""
+    cmd = [
+        sys.executable,
+        "-c",
+        "import os; "
+        "os.write(1, b'out\\xff' b'put\\xe2\\x98\\x83\\nnext out\\n'); "
+        "os.write(2, b'err\\xc0\\x80or\\nnext err\\n')",
+    ]
+    result = run(cmd, quiet=quiet, tee=tee)
+    assert result.args == cmd
+    assert result.returncode == 0
+    assert result.stdout == "out�put☃\nnext out\n"
+    assert result.stderr == "err��or\nnext err\n"
+    captured = capsys.readouterr()
+    if quiet or not tee:
+        assert not captured.out
+        assert not captured.err
+    else:
+        assert captured.out == result.stdout
+        assert captured.err == result.stderr
+
+
+def test_run_invalid_utf8_with_check() -> None:
+    """Preserve captured output on a failed child when check=True."""
+    cmd = [
+        sys.executable,
+        "-c",
+        "import os; os.write(1, b'out\\xff\\n'); "
+        "os.write(2, b'err\\xff\\n'); raise SystemExit(7)",
+    ]
+    with pytest.raises(subprocess.CalledProcessError) as error:
+        run(cmd, check=True, quiet=True)
+    assert error.value.returncode == 7
+    assert error.value.stdout == "out�\n"
+    assert error.value.stderr == "err�\n"
